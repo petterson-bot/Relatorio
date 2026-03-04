@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDA 2026 — Análise Completa: Compras × Desqualificados</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f2f2ee;
+    --surface: #ffffff;
+    --surface2: #f8f8f5;
+    --border: #e2e2db;
+    --text: #181816;
+    --text2: #64645e;
+    --text3: #9a9a93;
+    --accent: #2548d4;
+    --accent-soft: #edf0fb;
+    --green: #186840;
+    --green-soft: #e6f4ed;
+    --red: #b83030;
+    --red-soft: #fbeeee;
+    --orange: #b85a10;
+    --orange-soft: #fdf3ea;
+    --yellow: #926e00;
+    --yellow-soft: #fdf7e4;
+    --r: 10px;
+    --sh: 0 1px 2px rgba(0,0,0,0.05), 0 3px 10px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 28px 20px; min-height: 100vh; }
+  .wrap { max-width: 1300px; margin: 0 auto; }
+
+  /* HEADER */
+  .hdr { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+  .hdr-l .eyebrow { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text3); margin-bottom:5px; }
+  .hdr-l h1 { font-size:24px; font-weight:700; letter-spacing:-.4px; }
+  .hdr-l .sub { font-size:12px; color:var(--text2); margin-top:3px; font-family:'DM Mono',monospace; }
+  .hdr-r { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .badge { font-size:10px; font-weight:700; letter-spacing:.08em; padding:4px 11px; border-radius:20px; }
+  .badge-blue { background:var(--accent-soft); color:var(--accent); }
+  .badge-red  { background:var(--red-soft);    color:var(--red); }
+
+  /* TABS */
+  .tabs { display:flex; gap:3px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:4px; width:fit-content; margin-bottom:24px; flex-wrap:wrap; }
+  .tab { padding:7px 16px; border-radius:7px; font-size:12px; font-weight:500; cursor:pointer; border:none; background:transparent; color:var(--text2); transition:all .15s; }
+  .tab.active { background:var(--accent); color:#fff; }
+  .tab:hover:not(.active) { background:var(--surface2); color:var(--text); }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* KPI */
+  .kpi-row { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:20px; }
+  .kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; box-shadow:var(--sh); }
+  .kpi-lbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
+  .kpi-val { font-size:26px; font-weight:700; letter-spacing:-1px; line-height:1; }
+  .kpi-sub { font-size:11px; color:var(--text2); margin-top:5px; font-family:'DM Mono',monospace; }
+
+  /* CARDS */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:20px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); }
+  .card.full { grid-column:1/-1; }
+  .card-hdr { padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; justify-content:space-between; }
+  .card-title { font-size:13px; font-weight:600; }
+  .card-sub { font-size:11px; color:var(--text3); }
+  .card-body { padding:16px 20px; }
+  .chart-wrap { padding:4px 16px 16px; height:280px; position:relative; }
+  .chart-wrap-lg { padding:4px 16px 16px; height:340px; position:relative; }
+
+  /* TABLES */
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); padding:9px 16px; background:var(--surface2); border-bottom:1px solid var(--border); white-space:nowrap; }
+  td { padding:10px 16px; font-size:12.5px; border-bottom:1px solid #efefeb; vertical-align:middle; }
+  tr:last-child td { border:none; }
+  tr:hover td { background:var(--surface2); }
+
+  .mono { font-family:'DM Mono',monospace; font-size:11px; }
+  .code { font-family:'DM Mono',monospace; font-size:11px; background:var(--surface2); padding:2px 7px; border-radius:4px; color:var(--accent); border:1px solid var(--border); }
+  .num { font-family:'DM Mono',monospace; }
+
+  .pill { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap; }
+  .pg { background:var(--green-soft); color:var(--green); }
+  .pr { background:var(--red-soft); color:var(--red); }
+  .po { background:var(--orange-soft); color:var(--orange); }
+  .py { background:var(--yellow-soft); color:var(--yellow); }
+  .pb { background:var(--accent-soft); color:var(--accent); }
+
+  .bar-row { display:flex; align-items:center; gap:7px; }
+  .bar-bg { flex:1; height:5px; background:var(--border); border-radius:3px; min-width:40px; }
+  .bar-f { height:5px; border-radius:3px; }
+
+  /* RISK MATRIX */
+  .risk-list { display:flex; flex-direction:column; gap:10px; padding:16px 20px; }
+  .risk-item { display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:8px; border:1px solid var(--border); }
+  .risk-ico { font-size:18px; flex-shrink:0; margin-top:1px; }
+  .risk-body {}
+  .risk-name { font-size:12.5px; font-weight:600; margin-bottom:3px; }
+  .risk-txt { font-size:12px; color:var(--text2); line-height:1.5; }
+
+  /* CONTACTS */
+  .contact-list { display:flex; flex-direction:column; gap:8px; padding:16px 20px; }
+  .contact-item { display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--surface2); border-radius:7px; border:1px solid var(--border); }
+  .contact-avatar { width:34px; height:34px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .contact-info .name { font-size:13px; font-weight:500; }
+  .contact-info .detail { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; }
+
+  @media(max-width:900px){
+    .kpi-row{grid-template-columns:1fr 1fr;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="eyebrow">Análise Integrada de Dados</div>
+    <h1>SDA AO VIVO 2026</h1>
+    <div class="sub">Conta 04 · act_377480853270622 · Leads × Compras × Desqualificados × To Talk</div>
+  </div>
+  <div class="hdr-r">
+    <span class="badge badge-blue">257 desqualificados analisados</span>
+    <span class="badge badge-red">5 contatos cruzados com To Talk</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('visao',this)">Visão Geral</button>
+  <button class="tab" onclick="showTab('risco',this)">Anúncios × Qualidade</button>
+  <button class="tab" onclick="showTab('perdidos',this)">Perdidos</button>
+  <button class="tab" onclick="showTab('semper',this)">Sem Perfil</button>
+  <button class="tab" onclick="showTab('totalk',this)">To Talk</button>
+  <button class="tab" onclick="showTab('recomend',this)">Recomendações</button>
+</div>
+
+<!-- ===== VISÃO GERAL ===== -->
+<div id="tab-visao" class="section active">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-lbl">Total Desqualificados</div>
+      <div class="kpi-val" style="color:var(--red)">257</div>
+      <div class="kpi-sub">Sem perfil: 128 · Perdidos: 129</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Compras (CRM)</div>
+      <div class="kpi-val" style="color:var(--green)">278</div>
+      <div class="kpi-sub">CPA médio R$524,42</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Taxa de Desqualif.</div>
+      <div class="kpi-val" style="color:var(--orange)">48%</div>
+      <div class="kpi-sub">257 desq. / 535 total analisados</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">To Talk × Planilhas</div>
+      <div class="kpi-val">5</div>
+      <div class="kpi-sub">Contatos cruzados encontrados</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Pior Anúncio</div>
+      <div class="kpi-val" style="font-size:18px;color:var(--red)">SDALE006</div>
+      <div class="kpi-sub">38 desq. · maior volume</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Desqualificados por Anúncio (Top 10)</span><span class="card-sub">Sem Perfil + Perdidos</span></div>
+      <div class="chart-wrap"><canvas id="cDesqAnuncio"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Compras vs Desqualificados</span><span class="card-sub">Top anúncios com ambos os dados</span></div>
+      <div class="chart-wrap"><canvas id="cComprasVsDesq"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Distribuição: Sem Perfil × Perdidos</span><span class="card-sub">Por anúncio (top 8)</span></div>
+      <div class="chart-wrap"><canvas id="cStacked"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Qualidade por Fonte</span><span class="card-sub">Proporção desqualificados vs compras por origem</span></div>
+      <div class="chart-wrap"><canvas id="cFonte"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ANÚNCIOS × QUALIDADE ===== -->
+<div id="tab-risco" class="section">
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-hdr"><span class="card-title">Matriz Completa: Compras × Desqualificados por Anúncio</span><span class="card-sub">Ordenado por total desqualificados ↓</span></div>
+    <div class="chart-wrap-lg"><canvas id="cMatrizRisco"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Ranking de Qualidade por Anúncio</div><div class="card-sub">Cruzamento: compras reais × desqualificados gerados</div></div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Código</th><th>Compras</th><th>Sem Perfil</th><th>Perdidos</th><th>Total Desq.</th><th>Ratio Desq./Compra</th><th>Classificação</th></tr>
+      </thead>
+      <tbody id="tRisco"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== PERDIDOS ===== -->
+<div id="tab-perdidos" class="section">
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi"><div class="kpi-lbl">Total Perdidos</div><div class="kpi-val" style="color:var(--red)">129</div></div>
+    <div class="kpi"><div class="kpi-lbl">Fase: Sem Perfil</div><div class="kpi-val">97</div><div class="kpi-sub">75% dos perdidos</div></div>
+    <div class="kpi"><div class="kpi-lbl">Fase: Novos Leads</div><div class="kpi-val">21</div></div>
+    <div class="kpi"><div class="kpi-lbl">Fase: Base/Contato</div><div class="kpi-val">11</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Anúncios que geraram Perdidos (top 10)</span><span class="card-sub">Ordenado por volume ↓</span></div>
+      <div class="chart-wrap"><canvas id="cPerdidosAnuncio"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Fase dos Perdidos</span><span class="card-sub">Onde foram classificados no CRM</span></div>
+      <div class="chart-wrap"><canvas id="cPerdidosFase"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div><div class="card-title">Anúncios → Perdidos (detalhado)</div><div class="card-sub">Todos os anúncios com pelo menos 1 perdido</div></div></div>
+    <table>
+      <thead><tr><th>#</th><th>Código do Anúncio</th><th>Perdidos</th><th>% do Total</th><th>Compras (PDF)</th><th>Risco</th></tr></thead>
+      <tbody id="tPerdidos"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SEM PERFIL ===== -->
+<div id="tab-semper" class="section">
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi"><div class="kpi-lbl">Total Sem Perfil</div><div class="kpi-val" style="color:var(--red)">128</div></div>
+    <div class="kpi"><div class="kpi-lbl">Via Google Pmax</div><div class="kpi-val">21</div><div class="kpi-sub">16% do total</div></div>
+    <div class="kpi"><div class="kpi-lbl">Via SDALE006</div><div class="kpi-val">20</div><div class="kpi-sub">Maior anúncio Meta</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Sem Perfil por Anúncio</span><span class="card-sub">Top 10</span></div>
+      <div class="chart-wrap"><canvas id="cSemPerAnuncio"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Tipo de Origem</span><span class="card-sub">Meta Ads vs Google vs Orgânico</span></div>
+      <div class="chart-wrap"><canvas id="cSemPerOrigem"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div><div class="card-title">Sem Perfil por Anúncio (detalhado)</div></div></div>
+    <table>
+      <thead><tr><th>#</th><th>Código do Anúncio</th><th>Sem Perfil</th><th>% do Total</th><th>Compras (PDF)</th><th>Risco</th></tr></thead>
+      <tbody id="tSemPer"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TO TALK ===== -->
+<div id="tab-totalk" class="section">
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hdr"><span class="card-title">Contatos To Talk encontrados nas planilhas</span><span class="card-sub">Cruzamento por telefone e nome</span></div>
+    <div class="contact-list">
+      <div style="padding:12px 20px;font-size:13px;color:var(--text2);line-height:1.6">
+        Foram cruzados os <strong>93 contatos da To Talk</strong> com as planilhas <strong>Sem Perfil (128)</strong> e <strong>Perdidos (129)</strong> por telefone e nome.<br>
+        Resultado: <strong>5 contatos encontrados</strong> — estes leads estão em To Talk mas foram classificados como Sem Perfil ou Perdidos no CRM.
+      </div>
+      <div class="contact-item">
+        <div class="contact-avatar">D</div>
+        <div class="contact-info">
+          <div class="name">Daniel</div>
+          <div class="detail">Tel: +55 11 96xxx-xxxx · Planilha: Sem Perfil · E-mail: laraparaiso1001@gmail.com</div>
+        </div>
+        <span class="pill pr" style="margin-left:auto">Sem Perfil</span>
+      </div>
+      <div class="contact-item">
+        <div class="contact-avatar">A</div>
+        <div class="contact-info">
+          <div class="name">Alexandre (1)</div>
+          <div class="detail">Tel: +55 37 99xxx-xxxx · Planilha: Sem Perfil + Perdido · alexandresantosaraujo@hotmail.com</div>
+        </div>
+        <span class="pill pr" style="margin-left:auto">Duplicado</span>
+      </div>
+      <div class="contact-item">
+        <div class="contact-avatar">A</div>
+        <div class="contact-info">
+          <div class="name">Alexandre (2)</div>
+          <div class="detail">Tel: +55 84 98xxx-xxxx · Planilha: Sem Perfil + Perdido · alexandrefilhocrs@gmail.com</div>
+        </div>
+        <span class="pill pr" style="margin-left:auto">Duplicado</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">O que fazer com esses contatos</span></div>
+    <div class="risk-list">
+      <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
+        <div class="risk-ico">⚠️</div>
+        <div class="risk-body">
+          <div class="risk-name">Contatos em To Talk + Desqualificados no CRM</div>
+          <div class="risk-txt">Estes leads estão sendo trabalhados pelo time de vendas (To Talk) mas já foram marcados como "Sem Perfil" ou "Perdidos" em outra pipeline. Alinhar com o time se devem continuar sendo abordados ou se a qualificação está inconsistente entre sistemas.</div>
+        </div>
+      </div>
+      <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
+        <div class="risk-ico">✅</div>
+        <div class="risk-body">
+          <div class="risk-name">93 contatos na To Talk sem sobreposição</div>
+          <div class="risk-txt">A grande maioria dos contatos To Talk (88 de 93) NÃO aparece nas planilhas de desqualificados. São leads em outro estágio da jornada. Priorizar abordagem destes contatos com follow-up ativo.</div>
+        </div>
+      </div>
+      <div class="risk-item" style="background:var(--accent-soft);border-color:#b0c0f0">
+        <div class="risk-ico">📋</div>
+        <div class="risk-body">
+          <div class="risk-name">Recomendação: Unificar base de dados</div>
+          <div class="risk-txt">Cruzar To Talk, CRM e planilhas semanalmente para evitar que o time trabalhe leads já desqualificados — e para identificar leads quentes que precisam de atenção.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RECOMENDAÇÕES ===== -->
+<div id="tab-recomend" class="section">
+  <div class="grid3">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title" style="color:var(--red)">🔴 Pausar / Revisar</span></div>
+      <div class="risk-list">
+        <div class="risk-item" style="background:var(--red-soft);border-color:#e8b0b0">
+          <div class="risk-ico">🛑</div><div class="risk-body">
+            <div class="risk-name">Google Pmax</div>
+            <div class="risk-txt">47 desqualificados (maior fonte!). Sem controle de segmentação. Revisar palavras-chave negativas e ajustar audiências urgentemente.</div>
+          </div>
+        </div>
+        <div class="risk-item" style="background:var(--red-soft);border-color:#e8b0b0">
+          <div class="risk-ico">🛑</div><div class="risk-body">
+            <div class="risk-name">SDALE006 — CaracaMeu</div>
+            <div class="risk-txt">38 desqualificados com apenas 2 compras no CRM. Alto volume de atração de público errado. Pausar e revisar segmentação.</div>
+          </div>
+        </div>
+        <div class="risk-item" style="background:var(--red-soft);border-color:#e8b0b0">
+          <div class="risk-ico">🛑</div><div class="risk-body">
+            <div class="risk-name">SDALE084 — 3DiasMaisImportantes</div>
+            <div class="risk-txt">20 desqualificados, 5 compras. Ratio 4:1 (4 perdidos por compra). Reduzir budget ou refinar público alvo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title" style="color:var(--yellow)">🟡 Monitorar</span></div>
+      <div class="risk-list">
+        <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
+          <div class="risk-ico">⚡</div><div class="risk-body">
+            <div class="risk-name">SDALE083 — PlateiaCenas</div>
+            <div class="risk-txt">17 desq. vs 4 compras. Testar variações com segmentação mais restritiva antes de escalar.</div>
+          </div>
+        </div>
+        <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
+          <div class="risk-ico">⚡</div><div class="risk-body">
+            <div class="risk-name">SDALE068 — JaEstouArrumandoMala</div>
+            <div class="risk-txt">13 desq. vs 2 compras. Bom CPL de leads mas baixa conversão para perfil adequado.</div>
+          </div>
+        </div>
+        <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
+          <div class="risk-ico">⚡</div><div class="risk-body">
+            <div class="risk-name">Link in Bio</div>
+            <div class="risk-txt">13 desqualificados vindos de orgânico. Revisar CTA e texto do link na bio para qualificar melhor antes do clique.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title" style="color:var(--green)">🟢 Escalar</span></div>
+      <div class="risk-list">
+        <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
+          <div class="risk-ico">🚀</div><div class="risk-body">
+            <div class="risk-name">SDALE004 — OQueSDATeFazSentir</div>
+            <div class="risk-txt">31 compras com apenas 7 desqualificados. Melhor ratio qualidade de toda a conta. Escalar com prioridade.</div>
+          </div>
+        </div>
+        <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
+          <div class="risk-ico">🚀</div><div class="risk-body">
+            <div class="risk-name">SDALE037 — GrandesPlayers</div>
+            <div class="risk-txt">12 compras vs apenas 2 desqualificados. Ratio excelente. CPL R$15,94. Anúncio mais eficiente da conta.</div>
+          </div>
+        </div>
+        <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
+          <div class="risk-ico">🚀</div><div class="risk-body">
+            <div class="risk-name">SDALE003 — EuTenhoQueFazerSDA</div>
+            <div class="risk-txt">13 compras vs poucos desqualificados. Conversão full-funnel saudável. Testar em todos os públicos quentes.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">Plano de Ação — Próximos Passos</span></div>
+    <div class="risk-list">
+      <div class="risk-item">
+        <div class="risk-ico">1️⃣</div><div class="risk-body">
+          <div class="risk-name">Google Pmax: adicionar audiências negativas</div>
+          <div class="risk-txt">Com 47 desqualificados (26 perdidos + 21 sem perfil), o Pmax é a maior fonte de desperdício. Adicionar listas de exclusão e restringir faixa etária/renda se possível.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-ico">2️⃣</div><div class="risk-body">
+          <div class="risk-name">Incluir perguntas de qualificação no formulário de lead</div>
+          <div class="risk-txt">48% de desqualificação indica que o formulário atual não filtra o perfil. Adicionar 1-2 perguntas de qualificação (faturamento, área de atuação) para reduzir o volume de sem-perfil.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-ico">3️⃣</div><div class="risk-body">
+          <div class="risk-name">Realinhar SDALE006 com público mais qualificado</div>
+          <div class="risk-txt">O criativo gera muito volume (602 leads agrupados) mas com baixa qualidade. Testar este criativo exclusivamente em públicos de remarketing e LAL de compradores — que já têm perfil validado.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-ico">4️⃣</div><div class="risk-body">
+          <div class="risk-name">Cruzar To Talk com CRM semanalmente</div>
+          <div class="risk-txt">3 contatos To Talk estão duplicados como desqualificados. Criar processo de sincronização semanal entre as bases para evitar desperdício do time comercial.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-ico">5️⃣</div><div class="risk-body">
+          <div class="risk-name">Escalar SDALE004 + SDALE037 + SDALE003 em públicos de qualidade</div>
+          <div class="risk-txt">Os 3 melhores criativos em ratio compras/desqualificados. Colocar maior parte do budget nestes 3 anúncios nos públicos 03.IG007_Auto e 00.BaseGeral_Auto (melhores CPA do PDF).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+Chart.defaults.font.family = 'DM Sans';
+Chart.defaults.color = '#9a9a93';
+
+// DATA
+const desqPorAnuncio = [
+  { cod:'Google Pmax', perdidos:26, semPer:21, compras:0 },
+  { cod:'SDALE006',    perdidos:18, semPer:20, compras:2 },
+  { cod:'SDALE084',    perdidos:10, semPer:10, compras:5 },
+  { cod:'SDALE083',    perdidos:8,  semPer:9,  compras:4 },
+  { cod:'Sem UTM',     perdidos:8,  semPer:9,  compras:0 },
+  { cod:'SDALE068',    perdidos:5,  semPer:8,  compras:2 },
+  { cod:'Link in Bio', perdidos:6,  semPer:7,  compras:0 },
+  { cod:'SDAL1152',    perdidos:5,  semPer:7,  compras:2 },
+  { cod:'SDALE004',    perdidos:3,  semPer:4,  compras:31 },
+  { cod:'SDAL1096',    perdidos:4,  semPer:3,  compras:0 },
+  { cod:'SDAL1106',    perdidos:3,  semPer:4,  compras:0 },
+  { cod:'SDALE037',    perdidos:1,  semPer:1,  compras:12 },
+  { cod:'SDALE003',    perdidos:1,  semPer:0,  compras:13 },
+  { cod:'SDAL1138',    perdidos:3,  semPer:1,  compras:6 },
+  { cod:'SDALE085',    perdidos:2,  semPer:2,  compras:5 },
+].map(d=>({...d, total:d.perdidos+d.semPer})).sort((a,b)=>b.total-a.total);
+
+const C = {
+  blue:'rgba(37,72,212,0.82)',
+  blueSoft:'rgba(37,72,212,0.18)',
+  red:'rgba(184,48,48,0.82)',
+  redSoft:'rgba(184,48,48,0.18)',
+  green:'rgba(24,104,64,0.82)',
+  greenSoft:'rgba(24,104,64,0.18)',
+  orange:'rgba(184,90,16,0.75)',
+  gray:'rgba(120,120,112,0.5)',
+};
+
+const opts = (extra={}) => ({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}},scales:{y:{grid:{color:'#eaeae4'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}, ...extra});
+
+// 1. Desq por anuncio (top 10)
+const top10 = desqPorAnuncio.slice(0,10);
+new Chart(document.getElementById('cDesqAnuncio'),{
+  type:'bar',
+  data:{ labels:top10.map(d=>d.cod), datasets:[{label:'Total Desqualif.',data:top10.map(d=>d.total),backgroundColor:top10.map(d=>d.total>20?C.red:d.total>10?C.orange:C.gray),borderRadius:5}]},
+  options:{...opts(),plugins:{legend:{display:false}}}
+});
+
+// 2. Compras vs Desq
+const filtered = desqPorAnuncio.filter(d=>d.compras>0||d.total>5).slice(0,10);
+new Chart(document.getElementById('cComprasVsDesq'),{
+  type:'bar',
+  data:{
+    labels:filtered.map(d=>d.cod),
+    datasets:[
+      {label:'Compras',data:filtered.map(d=>d.compras),backgroundColor:C.green,borderRadius:4,yAxisID:'y'},
+      {label:'Desqualif.',data:filtered.map(d=>d.total),backgroundColor:C.red,borderRadius:4,yAxisID:'y1'}
+    ]
+  },
+  options:{...opts(),scales:{y:{type:'linear',position:'left',grid:{color:'#eaeae4'},ticks:{font:{size:10}}},y1:{type:'linear',position:'right',grid:{display:false},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
+
+// 3. Stacked
+const top8 = desqPorAnuncio.slice(0,8);
+new Chart(document.getElementById('cStacked'),{
+  type:'bar',
+  data:{
+    labels:top8.map(d=>d.cod),
+    datasets:[
+      {label:'Sem Perfil',data:top8.map(d=>d.semPer),backgroundColor:'rgba(184,90,16,0.75)',borderRadius:4,stack:'s'},
+      {label:'Perdidos',data:top8.map(d=>d.perdidos),backgroundColor:C.red,borderRadius:4,stack:'s'}
+    ]
+  },
+  options:{...opts(),plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}}}
+});
+
+// 4. Fonte (Google vs Meta vs Orgânico)
+new Chart(document.getElementById('cFonte'),{
+  type:'doughnut',
+  data:{
+    labels:['Google Pmax','Meta Ads','Sem UTM / Orgânico'],
+    datasets:[{data:[47, 210-17, 17+13], backgroundColor:[C.orange,C.blue,C.gray], borderWidth:0, hoverOffset:8}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:16}}}}
+});
+
+// 5. Matriz risco (scatter-like com bar horizontal)
+const riskData = desqPorAnuncio.slice(0,12);
+new Chart(document.getElementById('cMatrizRisco'),{
+  type:'bar',
+  data:{
+    labels:riskData.map(d=>d.cod),
+    datasets:[
+      {label:'Compras',data:riskData.map(d=>d.compras),backgroundColor:C.green,borderRadius:4,yAxisID:'y'},
+      {label:'Sem Perfil',data:riskData.map(d=>d.semPer),backgroundColor:'rgba(184,90,16,0.75)',borderRadius:4,yAxisID:'y1'},
+      {label:'Perdidos',data:riskData.map(d=>d.perdidos),backgroundColor:C.red,borderRadius:4,yAxisID:'y1'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}},scales:{y:{type:'linear',position:'left',title:{display:true,text:'Compras',color:'#6a6a60'},grid:{color:'#eaeae4'},ticks:{font:{size:10}}},y1:{type:'linear',position:'right',title:{display:true,text:'Desqualificados',color:'#6a6a60'},grid:{display:false},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
+
+// 6. Perdidos por anuncio
+const perdData = desqPorAnuncio.slice(0,10);
+new Chart(document.getElementById('cPerdidosAnuncio'),{
+  type:'bar',
+  data:{labels:perdData.map(d=>d.cod),datasets:[{label:'Perdidos',data:perdData.map(d=>d.perdidos),backgroundColor:C.red,borderRadius:5}]},
+  options:{...opts(),plugins:{legend:{display:false}}}
+});
+
+// 7. Perdidos por fase
+new Chart(document.getElementById('cPerdidosFase'),{
+  type:'doughnut',
+  data:{
+    labels:['Sem perfil | Desqualif.','Novos Leads','Base','Em contato'],
+    datasets:[{data:[97,21,6,5],backgroundColor:[C.red,C.orange,'rgba(120,120,112,0.6)',C.blue],borderWidth:0,hoverOffset:6}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12}}}}
+});
+
+// 8. Sem Perfil por anuncio
+const spData = [
+  {cod:'Google Pmax',v:21},{cod:'SDALE006',v:20},{cod:'SDALE084',v:10},{cod:'SDALE083',v:9},
+  {cod:'SDALE068',v:8},{cod:'Link in Bio',v:7},{cod:'Sem UTM',v:9},{cod:'SDAL1152',v:7},
+  {cod:'SDAL1106',v:4},{cod:'SDALE004',v:4}
+].sort((a,b)=>b.v-a.v);
+new Chart(document.getElementById('cSemPerAnuncio'),{
+  type:'bar',
+  data:{labels:spData.map(d=>d.cod),datasets:[{label:'Sem Perfil',data:spData.map(d=>d.v),backgroundColor:C.orange,borderRadius:5}]},
+  options:{...opts(),plugins:{legend:{display:false}}}
+});
+
+// 9. Sem Perfil por origem
+new Chart(document.getElementById('cSemPerOrigem'),{
+  type:'doughnut',
+  data:{
+    labels:['Google Pmax','Meta Ads','Link in Bio','Sem UTM/Outros'],
+    datasets:[{data:[21,87,7,13],backgroundColor:[C.orange,C.blue,'rgba(120,120,112,0.6)',C.gray],borderWidth:0,hoverOffset:6}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12}}}}
+});
+
+// TABLES
+function riskPill(total, compras){
+  const ratio = compras>0 ? total/compras : 99;
+  if(ratio>10||compras===0&&total>10) return '<span class="pill pr">🔴 Alto</span>';
+  if(ratio>3) return '<span class="pill po">🟡 Médio</span>';
+  return '<span class="pill pg">🟢 Baixo</span>';
+}
+
+// Risco table
+document.getElementById('tRisco').innerHTML = desqPorAnuncio.map((d,i)=>{
+  const ratio = d.compras>0 ? (d.total/d.compras).toFixed(1)+'x' : '∞';
+  return `<tr>
+    <td class="mono">${i+1}</td>
+    <td><span class="code">${d.cod}</span></td>
+    <td class="num" style="color:var(--green);font-weight:600">${d.compras}</td>
+    <td class="num">${d.semPer}</td>
+    <td class="num">${d.perdidos}</td>
+    <td class="num" style="font-weight:600">${d.total}</td>
+    <td class="num" style="${d.compras===0||d.total/d.compras>5?'color:var(--red)':'color:var(--green)'}">${ratio}</td>
+    <td>${riskPill(d.total, d.compras)}</td>
+  </tr>`;
+}).join('');
+
+// Perdidos table
+const perdTable = desqPorAnuncio.filter(d=>d.perdidos>0).sort((a,b)=>b.perdidos-a.perdidos);
+const totPerd = perdTable.reduce((s,d)=>s+d.perdidos,0);
+document.getElementById('tPerdidos').innerHTML = perdTable.map((d,i)=>`<tr>
+  <td class="mono">${i+1}</td>
+  <td><span class="code">${d.cod}</span></td>
+  <td class="num" style="font-weight:600">${d.perdidos}</td>
+  <td class="num">${(d.perdidos/totPerd*100).toFixed(1)}%</td>
+  <td class="num" style="color:var(--green)">${d.compras||'—'}</td>
+  <td>${riskPill(d.perdidos, d.compras)}</td>
+</tr>`).join('');
+
+// Sem Perfil table
+const spTable = desqPorAnuncio.filter(d=>d.semPer>0).sort((a,b)=>b.semPer-a.semPer);
+const totSP = spTable.reduce((s,d)=>s+d.semPer,0);
+document.getElementById('tSemPer').innerHTML = spTable.map((d,i)=>`<tr>
+  <td class="mono">${i+1}</td>
+  <td><span class="code">${d.cod}</span></td>
+  <td class="num" style="font-weight:600">${d.semPer}</td>
+  <td class="num">${(d.semPer/totSP*100).toFixed(1)}%</td>
+  <td class="num" style="color:var(--green)">${d.compras||'—'}</td>
+  <td>${riskPill(d.semPer, d.compras)}</td>
+</tr>`).join('');
+
+function showTab(id, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
