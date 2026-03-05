@@ -3,636 +3,460 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDA 2026 — Análise Completa: Compras × Desqualificados</title>
+<title>SDA 2026 — Dashboard Interativo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
-
-  :root {
-    --bg: #f2f2ee;
-    --surface: #ffffff;
-    --surface2: #f8f8f5;
-    --border: #e2e2db;
-    --text: #181816;
-    --text2: #64645e;
-    --text3: #9a9a93;
-    --accent: #2548d4;
-    --accent-soft: #edf0fb;
-    --green: #186840;
-    --green-soft: #e6f4ed;
-    --red: #b83030;
-    --red-soft: #fbeeee;
-    --orange: #b85a10;
-    --orange-soft: #fdf3ea;
-    --yellow: #926e00;
-    --yellow-soft: #fdf7e4;
-    --r: 10px;
-    --sh: 0 1px 2px rgba(0,0,0,0.05), 0 3px 10px rgba(0,0,0,0.04);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 28px 20px; min-height: 100vh; }
-  .wrap { max-width: 1300px; margin: 0 auto; }
-
-  /* HEADER */
-  .hdr { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; padding-bottom:20px; border-bottom:1px solid var(--border); }
-  .hdr-l .eyebrow { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text3); margin-bottom:5px; }
-  .hdr-l h1 { font-size:24px; font-weight:700; letter-spacing:-.4px; }
-  .hdr-l .sub { font-size:12px; color:var(--text2); margin-top:3px; font-family:'DM Mono',monospace; }
-  .hdr-r { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
-  .badge { font-size:10px; font-weight:700; letter-spacing:.08em; padding:4px 11px; border-radius:20px; }
-  .badge-blue { background:var(--accent-soft); color:var(--accent); }
-  .badge-red  { background:var(--red-soft);    color:var(--red); }
-
-  /* TABS */
-  .tabs { display:flex; gap:3px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:4px; width:fit-content; margin-bottom:24px; flex-wrap:wrap; }
-  .tab { padding:7px 16px; border-radius:7px; font-size:12px; font-weight:500; cursor:pointer; border:none; background:transparent; color:var(--text2); transition:all .15s; }
-  .tab.active { background:var(--accent); color:#fff; }
-  .tab:hover:not(.active) { background:var(--surface2); color:var(--text); }
-  .section { display:none; }
-  .section.active { display:block; }
-
-  /* KPI */
-  .kpi-row { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:20px; }
-  .kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; box-shadow:var(--sh); }
-  .kpi-lbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
-  .kpi-val { font-size:26px; font-weight:700; letter-spacing:-1px; line-height:1; }
-  .kpi-sub { font-size:11px; color:var(--text2); margin-top:5px; font-family:'DM Mono',monospace; }
-
-  /* CARDS */
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px; }
-  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:20px; }
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); }
-  .card.full { grid-column:1/-1; }
-  .card-hdr { padding:16px 20px 12px; border-bottom:1px solid var(--border); display:flex; align-items:baseline; justify-content:space-between; }
-  .card-title { font-size:13px; font-weight:600; }
-  .card-sub { font-size:11px; color:var(--text3); }
-  .card-body { padding:16px 20px; }
-  .chart-wrap { padding:4px 16px 16px; height:280px; position:relative; }
-  .chart-wrap-lg { padding:4px 16px 16px; height:340px; position:relative; }
-
-  /* TABLES */
-  table { width:100%; border-collapse:collapse; }
-  th { text-align:left; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); padding:9px 16px; background:var(--surface2); border-bottom:1px solid var(--border); white-space:nowrap; }
-  td { padding:10px 16px; font-size:12.5px; border-bottom:1px solid #efefeb; vertical-align:middle; }
-  tr:last-child td { border:none; }
-  tr:hover td { background:var(--surface2); }
-
-  .mono { font-family:'DM Mono',monospace; font-size:11px; }
-  .code { font-family:'DM Mono',monospace; font-size:11px; background:var(--surface2); padding:2px 7px; border-radius:4px; color:var(--accent); border:1px solid var(--border); }
-  .num { font-family:'DM Mono',monospace; }
-
-  .pill { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap; }
-  .pg { background:var(--green-soft); color:var(--green); }
-  .pr { background:var(--red-soft); color:var(--red); }
-  .po { background:var(--orange-soft); color:var(--orange); }
-  .py { background:var(--yellow-soft); color:var(--yellow); }
-  .pb { background:var(--accent-soft); color:var(--accent); }
-
-  .bar-row { display:flex; align-items:center; gap:7px; }
-  .bar-bg { flex:1; height:5px; background:var(--border); border-radius:3px; min-width:40px; }
-  .bar-f { height:5px; border-radius:3px; }
-
-  /* RISK MATRIX */
-  .risk-list { display:flex; flex-direction:column; gap:10px; padding:16px 20px; }
-  .risk-item { display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:8px; border:1px solid var(--border); }
-  .risk-ico { font-size:18px; flex-shrink:0; margin-top:1px; }
-  .risk-body {}
-  .risk-name { font-size:12.5px; font-weight:600; margin-bottom:3px; }
-  .risk-txt { font-size:12px; color:var(--text2); line-height:1.5; }
-
-  /* CONTACTS */
-  .contact-list { display:flex; flex-direction:column; gap:8px; padding:16px 20px; }
-  .contact-item { display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--surface2); border-radius:7px; border:1px solid var(--border); }
-  .contact-avatar { width:34px; height:34px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .contact-info .name { font-size:13px; font-weight:500; }
-  .contact-info .detail { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; }
-
-  @media(max-width:900px){
-    .kpi-row{grid-template-columns:1fr 1fr;}
-    .grid2,.grid3{grid-template-columns:1fr;}
-  }
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#f0f0ec;--surf:#fff;--surf2:#f6f6f3;--bdr:#e0e0d8;
+  --txt:#181816;--txt2:#606058;--txt3:#98988f;
+  --blue:#2548d4;--blue-s:#edf0fb;
+  --green:#186840;--green-s:#e6f4ed;
+  --red:#b83030;--red-s:#fbeeee;
+  --orange:#b85a10;--orange-s:#fdf3ea;
+  --r:10px;--sh:0 1px 2px rgba(0,0,0,.05),0 3px 12px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:220px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--bdr);padding:24px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.main{flex:1;padding:28px;overflow-x:hidden;}
+.logo{padding:0 20px 20px;border-bottom:1px solid var(--bdr);margin-bottom:16px;}
+.logo-tag{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--txt3);margin-bottom:4px;}
+.logo-title{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+.logo-sub{font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace;margin-top:2px;}
+.nav-sec{padding:0 12px;margin-bottom:8px;}
+.nav-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);padding:0 8px;margin-bottom:6px;display:block;}
+.nbtn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:7px;border:none;background:transparent;color:var(--txt2);font-size:12.5px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;transition:all .15s;}
+.nbtn:hover{background:var(--surf2);color:var(--txt);}
+.nbtn.active{background:var(--blue);color:#fff;}
+.nbtn .ico{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.nbtn .cnt{font-size:10px;font-weight:700;margin-left:auto;background:var(--bdr);color:var(--txt3);padding:1px 6px;border-radius:8px;}
+.nbtn.active .cnt{background:rgba(255,255,255,.25);color:#fff;}
+.filters{display:flex;align-items:center;gap:10px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 16px;margin-bottom:22px;flex-wrap:wrap;box-shadow:var(--sh);}
+.flbl{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+.fsep{width:1px;height:24px;background:var(--bdr);}
+input[type=date],select{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--txt);background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;outline:none;cursor:pointer;}
+input[type=date]:focus,select:focus{border-color:var(--blue);}
+.btn-r{font-size:11px;font-weight:600;color:var(--blue);background:var(--blue-s);border:none;border-radius:6px;padding:6px 12px;cursor:pointer;}
+.finfo{margin-left:auto;font-size:11px;color:var(--txt3);font-family:'DM Mono',monospace;}
+.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);}
+.klbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:8px;}
+.kval{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;}
+.ksub{font-size:11px;color:var(--txt2);margin-top:5px;font-family:'DM Mono',monospace;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;}
+.card.full{grid-column:1/-1;}
+.chdr{padding:14px 18px 10px;border-bottom:1px solid var(--bdr);display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.ctit{font-size:13px;font-weight:600;}
+.csub{font-size:11px;color:var(--txt3);}
+.cbox{padding:4px 14px 14px;height:260px;position:relative;}
+.cbox-lg{padding:4px 14px 14px;height:320px;position:relative;}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);padding:9px 14px;background:var(--surf2);border-bottom:1px solid var(--bdr);white-space:nowrap;}
+td{padding:9px 14px;font-size:12.5px;border-bottom:1px solid #efefeb;vertical-align:middle;}
+tr:last-child td{border:none;}
+tr:hover td{background:var(--surf2);}
+.mono{font-family:'DM Mono',monospace;font-size:11px;}
+.code{font-family:'DM Mono',monospace;font-size:11px;background:var(--surf2);padding:2px 7px;border-radius:4px;color:var(--blue);border:1px solid var(--bdr);}
+.num{font-family:'DM Mono',monospace;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.pg{background:var(--green-s);color:var(--green);}
+.pr{background:var(--red-s);color:var(--red);}
+.po{background:var(--orange-s);color:var(--orange);}
+.pb{background:var(--blue-s);color:var(--blue);}
+.brow{display:flex;align-items:center;gap:8px;}
+.bbg{flex:1;height:5px;background:var(--bdr);border-radius:3px;min-width:30px;}
+.bf{height:5px;border-radius:3px;}
+.view{display:none;}
+.view.active{display:block;}
+.phdr{margin-bottom:22px;}
+.phdr h2{font-size:20px;font-weight:700;letter-spacing:-.3px;}
+.phdr p{font-size:13px;color:var(--txt2);margin-top:3px;}
+.mnav{display:none;background:var(--surf);border-bottom:1px solid var(--bdr);padding:8px 12px;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.mnbtn{flex-shrink:0;padding:6px 12px;border-radius:7px;border:none;background:transparent;color:var(--txt2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;}
+.mnbtn.active{background:var(--blue);color:#fff;}
+.action-card{padding:12px 14px;border:1px solid var(--bdr);border-radius:8px;display:flex;gap:12px;}
+.action-ico{font-size:18px;flex-shrink:0;}
+.action-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+.action-txt{font-size:12px;color:var(--txt2);line-height:1.5;}
+.risk-block{padding:12px;border-radius:8px;border-left:3px solid;margin-bottom:8px;}
+.risk-title{font-size:12px;font-weight:600;margin-bottom:4px;}
+.risk-txt{font-size:12px;color:var(--txt2);line-height:1.5;}
+input[type=text]{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--txt);background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:6px 10px;outline:none;}
+@media(max-width:1200px){.krow{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:960px){.sidebar{display:none;}.mnav{display:flex!important;}.main{padding:16px;}.krow{grid-template-columns:1fr 1fr;gap:10px;}.g2,.g3{grid-template-columns:1fr;}}
+@media(max-width:600px){.kval{font-size:20px;}.finfo{display:none;}}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<!-- HEADER -->
-<div class="hdr">
-  <div class="hdr-l">
-    <div class="eyebrow">Análise Integrada de Dados</div>
-    <h1>SDA AO VIVO 2026</h1>
-    <div class="sub">Conta 04 · act_377480853270622 · Leads × Compras × Desqualificados × To Talk</div>
+<div class="mnav" id="mnav">
+  <button class="mnbtn active" onclick="sv('visao',this)">📊 Geral</button>
+  <button class="mnbtn" onclick="sv('espera',this)">📋 Lista Espera</button>
+  <button class="mnbtn" onclick="sv('lote1',this)">🎟️ Lote 1</button>
+  <button class="mnbtn" onclick="sv('pmax',this)">🔍 Pmax</button>
+  <button class="mnbtn" onclick="sv('outro',this)">📦 Sem Lote</button>
+  <button class="mnbtn" onclick="sv('contatos',this)">👥 Contatos</button>
+  <button class="mnbtn" onclick="sv('acoes',this)">⚡ Ações</button>
+</div>
+
+<div class="app">
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-tag">Dashboard Interativo</div>
+    <div class="logo-title">SDA AO VIVO 2026</div>
+    <div class="logo-sub">Conta 04 · Análise Completa</div>
   </div>
-  <div class="hdr-r">
-    <span class="badge badge-blue">257 desqualificados analisados</span>
-    <span class="badge badge-red">5 contatos cruzados com To Talk</span>
+  <div class="nav-sec">
+    <span class="nav-lbl">Visão Geral</span>
+    <button class="nbtn active" onclick="sv('visao',this)"><span class="ico">📊</span> Resumo Geral</button>
+    <button class="nbtn" onclick="sv('contatos',this)"><span class="ico">👥</span> Todos os Contatos</button>
+    <button class="nbtn" onclick="sv('acoes',this)"><span class="ico">⚡</span> Plano de Ação</button>
+  </div>
+  <div class="nav-sec" style="margin-top:8px">
+    <span class="nav-lbl">Por Lote</span>
+    <button class="nbtn" onclick="sv('espera',this)"><span class="ico">📋</span> Lista de Espera <span class="cnt" id="cnt-espera">-</span></button>
+    <button class="nbtn" onclick="sv('lote1',this)"><span class="ico">🎟️</span> Lote 1 <span class="cnt" id="cnt-lote1">-</span></button>
+    <button class="nbtn" onclick="sv('pmax',this)"><span class="ico">🔍</span> Google Pmax <span class="cnt" id="cnt-pmax">-</span></button>
+    <button class="nbtn" onclick="sv('outro',this)"><span class="ico">📦</span> Sem Lote <span class="cnt" id="cnt-outro">-</span></button>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="filters">
+  <span class="flbl">📅 Período</span>
+  <input type="date" id="fd1" onchange="af()">
+  <span style="font-size:12px;color:var(--txt3)">até</span>
+  <input type="date" id="fd2" onchange="af()">
+  <div class="fsep"></div>
+  <span class="flbl">Tipo</span>
+  <select id="ftipo" onchange="af()">
+    <option value="">Todos</option>
+    <option value="Sem Perfil">Sem Perfil</option>
+    <option value="Perdido">Perdido</option>
+  </select>
+  <div class="fsep"></div>
+  <span class="flbl">Anúncio</span>
+  <select id="fan" onchange="af()"><option value="">Todos</option></select>
+  <button class="btn-r" onclick="rf()">✕ Limpar</button>
+  <span class="finfo" id="finfo">257 registros</span>
+</div>
+
+<!-- VISÃO GERAL -->
+<div id="view-visao" class="view active">
+  <div class="phdr"><h2>Visão Geral</h2><p>Análise de desqualificados × anúncios · filtros em tempo real · clique nos gráficos para filtrar</p></div>
+  <div class="krow">
+    <div class="kpi"><div class="klbl">Total Desqualificados</div><div class="kval" id="kT" style="color:var(--red)">257</div><div class="ksub">Sem Perfil + Perdidos</div></div>
+    <div class="kpi"><div class="klbl">Sem Perfil</div><div class="kval" id="kSP">128</div><div class="ksub">Desqualificados diretos</div></div>
+    <div class="kpi"><div class="klbl">Perdidos</div><div class="kval" id="kPD">129</div><div class="ksub">Saíram do pipeline</div></div>
+    <div class="kpi"><div class="klbl">Pior Fonte</div><div class="kval" id="kPF" style="font-size:16px;color:var(--red)">G.Pmax</div><div class="ksub" id="kPFs">47 desqualificados</div></div>
+    <div class="kpi"><div class="klbl">Pior Anúncio</div><div class="kval" id="kPA" style="font-size:16px;color:var(--red)">SDALE006</div><div class="ksub" id="kPAs">38 desqualificados</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="chdr"><span class="ctit">Desqualificados por Anúncio</span><span class="csub">Clique para filtrar</span></div><div class="cbox"><canvas id="cA"></canvas></div></div>
+    <div class="card"><div class="chdr"><span class="ctit">Sem Perfil × Perdidos</span><span class="csub">Empilhado por anúncio</span></div><div class="cbox"><canvas id="cS"></canvas></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="chdr"><span class="ctit">Por Lote</span><span class="csub">Clique para ir ao lote</span></div><div class="cbox"><canvas id="cL"></canvas></div></div>
+    <div class="card"><div class="chdr"><span class="ctit">Evolução Diária</span><span class="csub">Leads desqualificados por dia</span></div><div class="cbox"><canvas id="cTL"></canvas></div></div>
+  </div>
+  <div class="card full" style="margin-bottom:20px">
+    <div class="chdr"><div><div class="ctit">Ranking: Anúncios × Qualidade</div><div class="csub">Clique na linha para filtrar · Compras do relatório PDF original</div></div></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Anúncio</th><th>Sem Perfil</th><th>Perdidos</th><th>Total Desq.</th><th>Compras (PDF)</th><th>Ratio</th><th>Risco</th></tr></thead><tbody id="tRank"></tbody></table></div>
   </div>
 </div>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab active" onclick="showTab('visao',this)">Visão Geral</button>
-  <button class="tab" onclick="showTab('risco',this)">Anúncios × Qualidade</button>
-  <button class="tab" onclick="showTab('perdidos',this)">Perdidos</button>
-  <button class="tab" onclick="showTab('semper',this)">Sem Perfil</button>
-  <button class="tab" onclick="showTab('totalk',this)">To Talk</button>
-  <button class="tab" onclick="showTab('recomend',this)">Recomendações</button>
-</div>
-
-<!-- ===== VISÃO GERAL ===== -->
-<div id="tab-visao" class="section active">
-
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-lbl">Total Desqualificados</div>
-      <div class="kpi-val" style="color:var(--red)">257</div>
-      <div class="kpi-sub">Sem perfil: 128 · Perdidos: 129</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">Compras (CRM)</div>
-      <div class="kpi-val" style="color:var(--green)">278</div>
-      <div class="kpi-sub">CPA médio R$524,42</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">Taxa de Desqualif.</div>
-      <div class="kpi-val" style="color:var(--orange)">48%</div>
-      <div class="kpi-sub">257 desq. / 535 total analisados</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">To Talk × Planilhas</div>
-      <div class="kpi-val">5</div>
-      <div class="kpi-sub">Contatos cruzados encontrados</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">Pior Anúncio</div>
-      <div class="kpi-val" style="font-size:18px;color:var(--red)">SDALE006</div>
-      <div class="kpi-sub">38 desq. · maior volume</div>
-    </div>
+<!-- LISTA DE ESPERA -->
+<div id="view-espera" class="view">
+  <div class="phdr"><h2>📋 Lista de Espera</h2><p>Desqualificados da fase de captação de Lista de Espera</p></div>
+  <div class="krow" id="kEspera" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="g2">
+    <div class="card"><div class="chdr"><span class="ctit">Anúncios → Desqualificados</span></div><div class="cbox"><canvas id="cEA"></canvas></div></div>
+    <div class="card"><div class="chdr"><span class="ctit">Sem Perfil × Perdidos</span></div><div class="cbox"><canvas id="cES"></canvas></div></div>
   </div>
-
-  <div class="grid2">
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Desqualificados por Anúncio (Top 10)</span><span class="card-sub">Sem Perfil + Perdidos</span></div>
-      <div class="chart-wrap"><canvas id="cDesqAnuncio"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Compras vs Desqualificados</span><span class="card-sub">Top anúncios com ambos os dados</span></div>
-      <div class="chart-wrap"><canvas id="cComprasVsDesq"></canvas></div>
-    </div>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Distribuição: Sem Perfil × Perdidos</span><span class="card-sub">Por anúncio (top 8)</span></div>
-      <div class="chart-wrap"><canvas id="cStacked"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Qualidade por Fonte</span><span class="card-sub">Proporção desqualificados vs compras por origem</span></div>
-      <div class="chart-wrap"><canvas id="cFonte"></canvas></div>
-    </div>
+  <div class="card"><div class="chdr"><div><div class="ctit">Contatos — Lista de Espera</div></div></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Nome</th><th>Anúncio</th><th>Tipo</th><th>Data</th><th>E-mail</th></tr></thead><tbody id="tE"></tbody></table></div>
   </div>
 </div>
 
-<!-- ===== ANÚNCIOS × QUALIDADE ===== -->
-<div id="tab-risco" class="section">
-
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-hdr"><span class="card-title">Matriz Completa: Compras × Desqualificados por Anúncio</span><span class="card-sub">Ordenado por total desqualificados ↓</span></div>
-    <div class="chart-wrap-lg"><canvas id="cMatrizRisco"></canvas></div>
+<!-- LOTE 1 -->
+<div id="view-lote1" class="view">
+  <div class="phdr"><h2>🎟️ Lote 1</h2><p>Desqualificados da fase de vendas Lote 1</p></div>
+  <div class="krow" id="kLote1" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="g2">
+    <div class="card"><div class="chdr"><span class="ctit">Anúncios → Desqualificados</span></div><div class="cbox"><canvas id="cL1A"></canvas></div></div>
+    <div class="card"><div class="chdr"><span class="ctit">Sem Perfil × Perdidos</span></div><div class="cbox"><canvas id="cL1S"></canvas></div></div>
   </div>
-
-  <div class="card">
-    <div class="card-hdr">
-      <div><div class="card-title">Ranking de Qualidade por Anúncio</div><div class="card-sub">Cruzamento: compras reais × desqualificados gerados</div></div>
-    </div>
-    <table>
-      <thead>
-        <tr><th>#</th><th>Código</th><th>Compras</th><th>Sem Perfil</th><th>Perdidos</th><th>Total Desq.</th><th>Ratio Desq./Compra</th><th>Classificação</th></tr>
-      </thead>
-      <tbody id="tRisco"></tbody>
-    </table>
+  <div class="card"><div class="chdr"><div><div class="ctit">Contatos — Lote 1</div></div></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Nome</th><th>Anúncio</th><th>Tipo</th><th>Data</th><th>E-mail</th></tr></thead><tbody id="tL1"></tbody></table></div>
   </div>
 </div>
 
-<!-- ===== PERDIDOS ===== -->
-<div id="tab-perdidos" class="section">
-  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
-    <div class="kpi"><div class="kpi-lbl">Total Perdidos</div><div class="kpi-val" style="color:var(--red)">129</div></div>
-    <div class="kpi"><div class="kpi-lbl">Fase: Sem Perfil</div><div class="kpi-val">97</div><div class="kpi-sub">75% dos perdidos</div></div>
-    <div class="kpi"><div class="kpi-lbl">Fase: Novos Leads</div><div class="kpi-val">21</div></div>
-    <div class="kpi"><div class="kpi-lbl">Fase: Base/Contato</div><div class="kpi-val">11</div></div>
+<!-- GOOGLE PMAX -->
+<div id="view-pmax" class="view">
+  <div class="phdr"><h2>🔍 Google Pmax</h2><p>Maior fonte de desqualificação — 47 leads fora do perfil identificados</p></div>
+  <div class="krow" id="kPmax" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="g2">
+    <div class="card"><div class="chdr"><span class="ctit">Sem Perfil × Perdidos</span></div><div class="cbox"><canvas id="cPT"></canvas></div></div>
+    <div class="card"><div class="chdr"><span class="ctit">Evolução Diária — Pmax</span></div><div class="cbox"><canvas id="cPTL"></canvas></div></div>
   </div>
-  <div class="grid2">
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Anúncios que geraram Perdidos (top 10)</span><span class="card-sub">Ordenado por volume ↓</span></div>
-      <div class="chart-wrap"><canvas id="cPerdidosAnuncio"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Fase dos Perdidos</span><span class="card-sub">Onde foram classificados no CRM</span></div>
-      <div class="chart-wrap"><canvas id="cPerdidosFase"></canvas></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-hdr"><div><div class="card-title">Anúncios → Perdidos (detalhado)</div><div class="card-sub">Todos os anúncios com pelo menos 1 perdido</div></div></div>
-    <table>
-      <thead><tr><th>#</th><th>Código do Anúncio</th><th>Perdidos</th><th>% do Total</th><th>Compras (PDF)</th><th>Risco</th></tr></thead>
-      <tbody id="tPerdidos"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ===== SEM PERFIL ===== -->
-<div id="tab-semper" class="section">
-  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
-    <div class="kpi"><div class="kpi-lbl">Total Sem Perfil</div><div class="kpi-val" style="color:var(--red)">128</div></div>
-    <div class="kpi"><div class="kpi-lbl">Via Google Pmax</div><div class="kpi-val">21</div><div class="kpi-sub">16% do total</div></div>
-    <div class="kpi"><div class="kpi-lbl">Via SDALE006</div><div class="kpi-val">20</div><div class="kpi-sub">Maior anúncio Meta</div></div>
-  </div>
-  <div class="grid2">
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Sem Perfil por Anúncio</span><span class="card-sub">Top 10</span></div>
-      <div class="chart-wrap"><canvas id="cSemPerAnuncio"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><span class="card-title">Tipo de Origem</span><span class="card-sub">Meta Ads vs Google vs Orgânico</span></div>
-      <div class="chart-wrap"><canvas id="cSemPerOrigem"></canvas></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-hdr"><div><div class="card-title">Sem Perfil por Anúncio (detalhado)</div></div></div>
-    <table>
-      <thead><tr><th>#</th><th>Código do Anúncio</th><th>Sem Perfil</th><th>% do Total</th><th>Compras (PDF)</th><th>Risco</th></tr></thead>
-      <tbody id="tSemPer"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ===== TO TALK ===== -->
-<div id="tab-totalk" class="section">
   <div class="card" style="margin-bottom:16px">
-    <div class="card-hdr"><span class="card-title">Contatos To Talk encontrados nas planilhas</span><span class="card-sub">Cruzamento por telefone e nome</span></div>
-    <div class="contact-list">
-      <div style="padding:12px 20px;font-size:13px;color:var(--text2);line-height:1.6">
-        Foram cruzados os <strong>93 contatos da To Talk</strong> com as planilhas <strong>Sem Perfil (128)</strong> e <strong>Perdidos (129)</strong> por telefone e nome.<br>
-        Resultado: <strong>5 contatos encontrados</strong> — estes leads estão em To Talk mas foram classificados como Sem Perfil ou Perdidos no CRM.
+    <div class="chdr"><span class="ctit" style="color:var(--red)">⚠️ Leads claramente fora do perfil detectados</span></div>
+    <div style="padding:14px 18px;display:flex;flex-direction:column;gap:8px;" id="pmxAlerts"></div>
+  </div>
+  <div class="card"><div class="chdr"><div><div class="ctit">Todos os Contatos — Google Pmax</div></div></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Nome</th><th>Tipo</th><th>Data</th><th>E-mail</th></tr></thead><tbody id="tPmax"></tbody></table></div>
+  </div>
+</div>
+
+<!-- SEM LOTE -->
+<div id="view-outro" class="view">
+  <div class="phdr"><h2>📦 Sem Lote / Outros</h2><p>Orgânico, Link in Bio, UTM ausente ou não identificado</p></div>
+  <div class="krow" id="kOutro" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="g2">
+    <div class="card"><div class="chdr"><span class="ctit">Anúncios → Desqualificados</span></div><div class="cbox"><canvas id="cOA"></canvas></div></div>
+    <div class="card"><div class="chdr"><span class="ctit">Sem Perfil × Perdidos</span></div><div class="cbox"><canvas id="cOS"></canvas></div></div>
+  </div>
+  <div class="card"><div class="chdr"><div><div class="ctit">Contatos — Sem Lote</div></div></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Nome</th><th>Anúncio</th><th>Tipo</th><th>Data</th><th>E-mail</th></tr></thead><tbody id="tO"></tbody></table></div>
+  </div>
+</div>
+
+<!-- CONTATOS -->
+<div id="view-contatos" class="view">
+  <div class="phdr"><h2>👥 Todos os Contatos</h2><p>Base completa — filtre acima ou busque por nome/e-mail</p></div>
+  <div class="card">
+    <div class="chdr">
+      <div><div class="ctit">Lista Completa</div><div class="csub" id="cSub">257 registros</div></div>
+      <input type="text" id="srch" placeholder="🔍 Buscar nome ou e-mail..." oninput="renderC()" style="width:220px;">
+    </div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Anúncio</th><th>Lote</th><th>Tipo</th><th>Data</th></tr></thead><tbody id="tC"></tbody></table></div>
+  </div>
+</div>
+
+<!-- AÇÕES -->
+<div id="view-acoes" class="view">
+  <div class="phdr"><h2>⚡ Plano de Ação</h2><p>Recomendações estratégicas baseadas na análise de qualidade</p></div>
+  <div class="g3">
+    <div class="card">
+      <div class="chdr"><span class="ctit" style="color:var(--red)">🔴 Pausar / Revisar</span></div>
+      <div style="padding:14px 16px;">
+        <div class="risk-block" style="background:var(--red-s);border-color:var(--red)"><div class="risk-title">Google Pmax — 47 desqualificados</div><div class="risk-txt">Maior fonte de desperdício. Adicionar audiências negativas, listas de exclusão e restringir faixa etária urgentemente.</div></div>
+        <div class="risk-block" style="background:var(--red-s);border-color:var(--red)"><div class="risk-title">SDALE006 — 38 desq. / 2 compras</div><div class="risk-txt">Alto volume, baixa qualidade. Pausar em públicos frios. Usar somente em remarketing de compradores.</div></div>
+        <div class="risk-block" style="background:var(--red-s);border-color:var(--red)"><div class="risk-title">SDALE084 — 20 desq. / 5 compras</div><div class="risk-txt">Ratio 4:1 (4 perdidos por compra). Reduzir budget ou refinar segmentação de público.</div></div>
       </div>
-      <div class="contact-item">
-        <div class="contact-avatar">D</div>
-        <div class="contact-info">
-          <div class="name">Daniel</div>
-          <div class="detail">Tel: +55 11 96xxx-xxxx · Planilha: Sem Perfil · E-mail: laraparaiso1001@gmail.com</div>
-        </div>
-        <span class="pill pr" style="margin-left:auto">Sem Perfil</span>
+    </div>
+    <div class="card">
+      <div class="chdr"><span class="ctit" style="color:var(--orange)">🟡 Monitorar</span></div>
+      <div style="padding:14px 16px;">
+        <div class="risk-block" style="background:var(--orange-s);border-color:var(--orange)"><div class="risk-title">SDALE083 — 17 desq. / 4 compras</div><div class="risk-txt">Testar variações criativas com segmentação mais restrita antes de escalar.</div></div>
+        <div class="risk-block" style="background:var(--orange-s);border-color:var(--orange)"><div class="risk-title">SDALE068 — 13 desq. / 2 compras</div><div class="risk-txt">CPL bom mas perfil de lead fraco. Rever público-alvo do ad set.</div></div>
+        <div class="risk-block" style="background:var(--orange-s);border-color:var(--orange)"><div class="risk-title">Link in Bio — 13 desq. orgânico</div><div class="risk-txt">Revisar CTA e landing page para pré-qualificar antes do clique no link.</div></div>
       </div>
-      <div class="contact-item">
-        <div class="contact-avatar">A</div>
-        <div class="contact-info">
-          <div class="name">Alexandre (1)</div>
-          <div class="detail">Tel: +55 37 99xxx-xxxx · Planilha: Sem Perfil + Perdido · alexandresantosaraujo@hotmail.com</div>
-        </div>
-        <span class="pill pr" style="margin-left:auto">Duplicado</span>
-      </div>
-      <div class="contact-item">
-        <div class="contact-avatar">A</div>
-        <div class="contact-info">
-          <div class="name">Alexandre (2)</div>
-          <div class="detail">Tel: +55 84 98xxx-xxxx · Planilha: Sem Perfil + Perdido · alexandrefilhocrs@gmail.com</div>
-        </div>
-        <span class="pill pr" style="margin-left:auto">Duplicado</span>
+    </div>
+    <div class="card">
+      <div class="chdr"><span class="ctit" style="color:var(--green)">🟢 Escalar Agora</span></div>
+      <div style="padding:14px 16px;">
+        <div class="risk-block" style="background:var(--green-s);border-color:var(--green)"><div class="risk-title">SDALE004 — 31 compras / 7 desq.</div><div class="risk-txt">Melhor ratio da conta. Escalar com prioridade máxima em todos os públicos quentes.</div></div>
+        <div class="risk-block" style="background:var(--green-s);border-color:var(--green)"><div class="risk-title">SDALE037 — 12 compras / 2 desq.</div><div class="risk-txt">CPL R$15,94. Anúncio mais eficiente. Duplicar budget imediatamente.</div></div>
+        <div class="risk-block" style="background:var(--green-s);border-color:var(--green)"><div class="risk-title">SDALE003 — 13 compras / 1 desq.</div><div class="risk-txt">Full-funnel perfeito. Testar em todos os públicos de conversão.</div></div>
       </div>
     </div>
   </div>
   <div class="card">
-    <div class="card-hdr"><span class="card-title">O que fazer com esses contatos</span></div>
-    <div class="risk-list">
-      <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
-        <div class="risk-ico">⚠️</div>
-        <div class="risk-body">
-          <div class="risk-name">Contatos em To Talk + Desqualificados no CRM</div>
-          <div class="risk-txt">Estes leads estão sendo trabalhados pelo time de vendas (To Talk) mas já foram marcados como "Sem Perfil" ou "Perdidos" em outra pipeline. Alinhar com o time se devem continuar sendo abordados ou se a qualificação está inconsistente entre sistemas.</div>
-        </div>
-      </div>
-      <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
-        <div class="risk-ico">✅</div>
-        <div class="risk-body">
-          <div class="risk-name">93 contatos na To Talk sem sobreposição</div>
-          <div class="risk-txt">A grande maioria dos contatos To Talk (88 de 93) NÃO aparece nas planilhas de desqualificados. São leads em outro estágio da jornada. Priorizar abordagem destes contatos com follow-up ativo.</div>
-        </div>
-      </div>
-      <div class="risk-item" style="background:var(--accent-soft);border-color:#b0c0f0">
-        <div class="risk-ico">📋</div>
-        <div class="risk-body">
-          <div class="risk-name">Recomendação: Unificar base de dados</div>
-          <div class="risk-txt">Cruzar To Talk, CRM e planilhas semanalmente para evitar que o time trabalhe leads já desqualificados — e para identificar leads quentes que precisam de atenção.</div>
-        </div>
-      </div>
+    <div class="chdr"><span class="ctit">5 Ações Prioritárias</span></div>
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
+      <div class="action-card"><div class="action-ico">1️⃣</div><div><div class="action-title">Google Pmax: audiências negativas</div><div class="action-txt">47 desq. vêm do Pmax. Adicionar lista de exclusão e restringir faixa etária. Leads com nomes como "DASDADASDAS" ou palavrões são sinal claro de público completamente errado.</div></div></div>
+      <div class="action-card"><div class="action-ico">2️⃣</div><div><div class="action-title">Formulário com qualificação</div><div class="action-txt">48% de desqualificação exige filtro mais cedo. Incluir 1-2 perguntas (faturamento, nicho) antes de entrar no CRM — economiza tempo do time comercial.</div></div></div>
+      <div class="action-card"><div class="action-ico">3️⃣</div><div><div class="action-title">SDALE006 somente em RMKT</div><div class="action-txt">O criativo atrai muito volume mas de público errado. Usar exclusivamente em públicos de remarketing e LAL de compradores confirmados.</div></div></div>
+      <div class="action-card"><div class="action-ico">4️⃣</div><div><div class="action-title">Sincronizar To Talk com CRM semanal</div><div class="action-txt">3 contatos To Talk aparecem como desqualificados no CRM. Criar processo de sincronização para evitar que o time trabalhe leads já descartados.</div></div></div>
+      <div class="action-card"><div class="action-ico">5️⃣</div><div><div class="action-title">Concentrar budget: SDALE004 + SDALE037 + SDALE003</div><div class="action-txt">Os 3 melhores criativos em ratio compras/desqualificados. Focar nos públicos 03.IG007_Auto e 00.BaseGeral_Auto (melhores CPA do relatório PDF).</div></div></div>
     </div>
   </div>
 </div>
 
-<!-- ===== RECOMENDAÇÕES ===== -->
-<div id="tab-recomend" class="section">
-  <div class="grid3">
-    <div class="card">
-      <div class="card-hdr"><span class="card-title" style="color:var(--red)">🔴 Pausar / Revisar</span></div>
-      <div class="risk-list">
-        <div class="risk-item" style="background:var(--red-soft);border-color:#e8b0b0">
-          <div class="risk-ico">🛑</div><div class="risk-body">
-            <div class="risk-name">Google Pmax</div>
-            <div class="risk-txt">47 desqualificados (maior fonte!). Sem controle de segmentação. Revisar palavras-chave negativas e ajustar audiências urgentemente.</div>
-          </div>
-        </div>
-        <div class="risk-item" style="background:var(--red-soft);border-color:#e8b0b0">
-          <div class="risk-ico">🛑</div><div class="risk-body">
-            <div class="risk-name">SDALE006 — CaracaMeu</div>
-            <div class="risk-txt">38 desqualificados com apenas 2 compras no CRM. Alto volume de atração de público errado. Pausar e revisar segmentação.</div>
-          </div>
-        </div>
-        <div class="risk-item" style="background:var(--red-soft);border-color:#e8b0b0">
-          <div class="risk-ico">🛑</div><div class="risk-body">
-            <div class="risk-name">SDALE084 — 3DiasMaisImportantes</div>
-            <div class="risk-txt">20 desqualificados, 5 compras. Ratio 4:1 (4 perdidos por compra). Reduzir budget ou refinar público alvo.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><span class="card-title" style="color:var(--yellow)">🟡 Monitorar</span></div>
-      <div class="risk-list">
-        <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
-          <div class="risk-ico">⚡</div><div class="risk-body">
-            <div class="risk-name">SDALE083 — PlateiaCenas</div>
-            <div class="risk-txt">17 desq. vs 4 compras. Testar variações com segmentação mais restritiva antes de escalar.</div>
-          </div>
-        </div>
-        <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
-          <div class="risk-ico">⚡</div><div class="risk-body">
-            <div class="risk-name">SDALE068 — JaEstouArrumandoMala</div>
-            <div class="risk-txt">13 desq. vs 2 compras. Bom CPL de leads mas baixa conversão para perfil adequado.</div>
-          </div>
-        </div>
-        <div class="risk-item" style="background:var(--yellow-soft);border-color:#e8d080">
-          <div class="risk-ico">⚡</div><div class="risk-body">
-            <div class="risk-name">Link in Bio</div>
-            <div class="risk-txt">13 desqualificados vindos de orgânico. Revisar CTA e texto do link na bio para qualificar melhor antes do clique.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><span class="card-title" style="color:var(--green)">🟢 Escalar</span></div>
-      <div class="risk-list">
-        <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
-          <div class="risk-ico">🚀</div><div class="risk-body">
-            <div class="risk-name">SDALE004 — OQueSDATeFazSentir</div>
-            <div class="risk-txt">31 compras com apenas 7 desqualificados. Melhor ratio qualidade de toda a conta. Escalar com prioridade.</div>
-          </div>
-        </div>
-        <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
-          <div class="risk-ico">🚀</div><div class="risk-body">
-            <div class="risk-name">SDALE037 — GrandesPlayers</div>
-            <div class="risk-txt">12 compras vs apenas 2 desqualificados. Ratio excelente. CPL R$15,94. Anúncio mais eficiente da conta.</div>
-          </div>
-        </div>
-        <div class="risk-item" style="background:var(--green-soft);border-color:#a0d8b8">
-          <div class="risk-ico">🚀</div><div class="risk-body">
-            <div class="risk-name">SDALE003 — EuTenhoQueFazerSDA</div>
-            <div class="risk-txt">13 compras vs poucos desqualificados. Conversão full-funnel saudável. Testar em todos os públicos quentes.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-hdr"><span class="card-title">Plano de Ação — Próximos Passos</span></div>
-    <div class="risk-list">
-      <div class="risk-item">
-        <div class="risk-ico">1️⃣</div><div class="risk-body">
-          <div class="risk-name">Google Pmax: adicionar audiências negativas</div>
-          <div class="risk-txt">Com 47 desqualificados (26 perdidos + 21 sem perfil), o Pmax é a maior fonte de desperdício. Adicionar listas de exclusão e restringir faixa etária/renda se possível.</div>
-        </div>
-      </div>
-      <div class="risk-item">
-        <div class="risk-ico">2️⃣</div><div class="risk-body">
-          <div class="risk-name">Incluir perguntas de qualificação no formulário de lead</div>
-          <div class="risk-txt">48% de desqualificação indica que o formulário atual não filtra o perfil. Adicionar 1-2 perguntas de qualificação (faturamento, área de atuação) para reduzir o volume de sem-perfil.</div>
-        </div>
-      </div>
-      <div class="risk-item">
-        <div class="risk-ico">3️⃣</div><div class="risk-body">
-          <div class="risk-name">Realinhar SDALE006 com público mais qualificado</div>
-          <div class="risk-txt">O criativo gera muito volume (602 leads agrupados) mas com baixa qualidade. Testar este criativo exclusivamente em públicos de remarketing e LAL de compradores — que já têm perfil validado.</div>
-        </div>
-      </div>
-      <div class="risk-item">
-        <div class="risk-ico">4️⃣</div><div class="risk-body">
-          <div class="risk-name">Cruzar To Talk com CRM semanalmente</div>
-          <div class="risk-txt">3 contatos To Talk estão duplicados como desqualificados. Criar processo de sincronização semanal entre as bases para evitar desperdício do time comercial.</div>
-        </div>
-      </div>
-      <div class="risk-item">
-        <div class="risk-ico">5️⃣</div><div class="risk-body">
-          <div class="risk-name">Escalar SDALE004 + SDALE037 + SDALE003 em públicos de qualidade</div>
-          <div class="risk-txt">Os 3 melhores criativos em ratio compras/desqualificados. Colocar maior parte do budget nestes 3 anúncios nos públicos 03.IG007_Auto e 00.BaseGeral_Auto (melhores CPA do PDF).</div>
-        </div>
-      </div>
-    </div>
-  </div>
+</main>
 </div>
-
-</div><!-- end wrap -->
 
 <script>
-Chart.defaults.font.family = 'DM Sans';
-Chart.defaults.color = '#9a9a93';
+const RAW=[{"Nome do contato": "João Pedro Cunha", "telefone": "5511977217860", "e-mail": "jpgrafico2345@icloud.com", "data": "2026-03-04", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Andreza", "telefone": "5521994161016", "e-mail": "andreza.ags@hotmail.com", "data": "2026-03-02", "lote": "Sem Lote", "anuncio": "SDARL2212", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Eleodorio Ahuanares Carvajal", "telefone": "5592986218281", "e-mail": "eleodorio@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Lorraine Tomaz Reis", "telefone": "5535997137979", "e-mail": "lorraynethomaz595@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Patrícia Carraro Cordeiro", "telefone": "556999352610", "e-mail": "cpatriciacarraro@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Levy", "telefone": "5521975176772", "e-mail": "daviluccadlss21@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Gleidson cavalcante", "telefone": "5555749885656", "e-mail": "grandcarveiculo@hotmail.com", "data": "2026-03-02", "lote": "Sem Lote", "anuncio": "SDARL2212", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Wjdhcskgex", "telefone": "558135087964", "e-mail": "jhonnaikerrivas4@gmail.com", "data": "2026-02-28", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "henzo barros", "telefone": "5562998620150", "e-mail": "henzobarros38@gmail.com", "data": "2026-02-28", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Luciana gualberto da Silva firmiano", "telefone": "5531996667910", "e-mail": "gualbertoluciana3@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Edina Melgarejo", "telefone": "5569992839787", "e-mail": "edinamelgarejo2@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "DASDADASDAS", "telefone": "5515996402233", "e-mail": "asddasasd@hotmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "teste", "telefone": "", "e-mail": "teste@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "teste", "telefone": "", "e-mail": "tes@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maria Eduarda Costa", "telefone": "5537998324517", "e-mail": "dudaaaacosta3521@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Raquel", "telefone": "5561993029229", "e-mail": "raqtavares@gmail.com", "data": "2026-02-26", "lote": "Sem Lote", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Fagner Araujo", "telefone": "5511952485192", "e-mail": "fagner0016@gmail.com", "data": "2026-02-26", "lote": "Sem Lote", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Marli apareçida Pereira", "telefone": "5555699289747", "e-mail": "marliaparecidapereira91@gmail.com", "data": "2026-02-25", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vitor Torres", "telefone": "5531971730476", "e-mail": "vittor.torres@gmail.com", "data": "2026-02-25", "lote": "Sem Lote", "anuncio": "SDAL2190", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Ilza Manuele Sauza dos Santos", "telefone": "559292129399", "e-mail": "ilzicleys@gmail.com", "data": "2026-02-25", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Juliesi", "telefone": "5541998179834", "e-mail": "juliponde@hotmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Camila Rodrigues | Estrategista", "telefone": "5541996436132", "e-mail": "cahrodrigues_23@hotmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "govile@gmail.com", "telefone": "5511980702144", "e-mail": "govile@gmail.com", "data": "2026-02-20", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "debora_gmartins2007@hotmail.com", "telefone": "5511976729548", "e-mail": "debora_gmartins2007@hotmail.com", "data": "2026-02-20", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "heitorcardamone@gmail.com", "telefone": "5511933372533", "e-mail": "heitorcardamone@gmail.com", "data": "2026-02-20", "lote": "Lista de Espera", "anuncio": "sda segredos da audiencia", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "murillogabrieldominogs@gmail.com", "telefone": "5514996879263", "e-mail": "murillogabrieldominogs@gmail.com", "data": "2026-02-19", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Davi Gomes Souza", "telefone": "5522981798862", "e-mail": "davigsouzajr28@gmail.com", "data": "2026-02-16", "lote": "Lista de Espera", "anuncio": "sda samuel pereira", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Angelo wai wai", "telefone": "5593991845283", "e-mail": "angelowaiwai184@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "TU E TUA FAMILIA SAO UNS CUCKOLDS", "telefone": "", "e-mail": "vaiparafalenciafilhodaputa@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vai Vender Cursos La Na Casa do Caralho Golpista de Merda", "telefone": "5598999999343", "e-mail": "tueummerda@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "VAICHUPARUMAPICAFILHODAPUTA", "telefone": "558304341444", "e-mail": "vaichuparumapicafilhodaputa@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": 7586, "telefone": "", "e-mail": "andresantossnts45@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Almerinda Costa Braz", "telefone": "5582981267343", "e-mail": "almerinda.braz@hotmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDAL2163", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Amanda Vinicius", "telefone": "", "e-mail": "amandavinicius20mivi@gmail.com", "data": "2026-02-11", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "PETERSON", "telefone": "5598984227191", "e-mail": "petersonalmeida85@hotmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDAPV054", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Claudia", "telefone": "5511974639144", "e-mail": "claudiaconfortodesa@gmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Daniel", "telefone": "5511962740681", "e-mail": "laraparaiso1001@gmail.com", "data": "2026-02-09", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Joice", "telefone": "5545999754173", "e-mail": "joicemariaroncaglio@gmail.com", "data": "2026-02-05", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Caroline", "telefone": "5511913068998", "e-mail": "benatica@hotmail.com", "data": "2026-02-04", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Bruno", "telefone": "5585986469379", "e-mail": "brmoraes3@gmail.com", "data": "2026-02-03", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maria Eliane", "telefone": "5521992534358", "e-mail": "elainemf101@gmail.com", "data": "2026-01-31", "lote": "Lista de Espera", "anuncio": "SDAL1106", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Nicolly", "telefone": "5522999560968", "e-mail": "nicolly.jacob@gmail.vo", "data": "2026-01-29", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Douglas Dal Castel", "telefone": "5554981321850", "e-mail": "infodalcastel@gmail.com", "data": "2026-01-28", "lote": "Lista de Espera", "anuncio": "SDAL1138", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Caroline", "telefone": "5521973557673", "e-mail": "carolineglobo2601@gmail.com", "data": "2026-01-27", "lote": "Lista de Espera", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Marilha Joyce", "telefone": "5516991809163", "e-mail": "marilhajoyce@gmail.com", "data": "2026-01-27", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Bruna", "telefone": "5555999689289", "e-mail": "brunaa160817@gmail.com", "data": "2026-01-27", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Denilza", "telefone": "5511946560322", "e-mail": "denilza.soares.jeremias@gmail.com", "data": "2026-01-26", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Emilia Paulina Arantes", "telefone": "5524998178360", "e-mail": "emiliapaulina.a13@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDAL1096", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vinicioavelinofilho", "telefone": "5531997579918", "e-mail": "gerenciapostosvila@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vander José de Souza Borges", "telefone": "5535991469123", "e-mail": "vanderagro@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Emanuel", "telefone": "5599981765251", "e-mail": "emanuellimads1234@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDAL1126", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Marcos Fagner de Oliveira Farias", "telefone": "5566992208418", "e-mail": "marcosfagnerof@gmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDAL1106", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Alexandre", "telefone": "5537998280984", "e-mail": "alexandresantosaraujo@hotmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maria Fernanda da Paz", "telefone": "5521982299888", "e-mail": "nandapaz@gmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Erika da Rocha Valença", "telefone": "5581992474646", "e-mail": "erikarocha.rommanel@gmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Eduardo", "telefone": "5554999180234", "e-mail": "eduardotomiello@gmail.com", "data": "2026-01-22", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Petterson Perri", "telefone": "5511915140326", "e-mail": "petterson@segredosdaaudiencia.com.br", "data": "2026-01-22", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Fatima carla de oliveira da Silva", "telefone": "5595999676765", "e-mail": "carlaagnes2020@gmail.com", "data": "2026-01-22", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Juance Hernandez", "telefone": "5511919373992", "e-mail": "juancehernandez4@gmail.com", "data": "2026-01-21", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vanessa barry", "telefone": "552198941578", "e-mail": "vanessaandreiarosa2274@gmail.com", "data": "2026-01-21", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Fabiano Mello Dias", "telefone": "5519974024764", "e-mail": "fabiano@ksferramentaria.com.br", "data": "2026-01-21", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "João", "telefone": "5511987331497", "e-mail": "felipejfrm34@gmail.com", "data": "2026-01-21", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Aline", "telefone": "5511956243234", "e-mail": "aline44267@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Milena", "telefone": "5555119940998", "e-mail": "milenamr15@hotmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Isksks", "telefone": "5511919728281", "e-mail": "ffrggggh@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDAL1106", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Whelica", "telefone": "5511988485583", "e-mail": "whellyk@hotmail.com", "data": "2026-01-20", "lote": "Lista de Espera", "anuncio": "SDAL1106", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Wallace", "telefone": "5521997172800", "e-mail": "wallacebendavid@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Samira", "telefone": "5531992173241", "e-mail": "sucessodigitalsamy@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Lumena", "telefone": "5527988898577", "e-mail": "lumenafurtadoaltoe@gmail.com", "data": "2026-01-19", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Ana", "telefone": "5545996785869", "e-mail": "bajajsjs@gmail.com", "data": "2026-01-19", "lote": "Lote 1", "anuncio": "SDAL1117", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "rosinalvabarros1976@gmail.com", "telefone": "5511953985587", "e-mail": "rosinalvabarros1976@gmail.com", "data": "2026-01-19", "lote": "Lista de Espera", "anuncio": "SDALE085", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "marcelanelima7@gmail.com", "telefone": "", "e-mail": "marcelanelima7@gmail.com", "data": "2026-01-19", "lote": "Lista de Espera", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "kavieira@hotmail.com", "telefone": "5514998106996", "e-mail": "kavieira@hotmail.com", "data": "2026-01-18", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Lucas Oliveira", "telefone": "5591983229234", "e-mail": "oluckasoliveira@gmail.com", "data": "2026-01-18", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Caty", "telefone": "5575981656223", "e-mail": "andradecatianesouza@gmail.com", "data": "2026-01-18", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "nazareoliveira8188@gmail.com", "telefone": "5561986360631", "e-mail": "nazareoliveira8188@gmail.com", "data": "2026-01-17", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "luciana.dotim@gmail.com", "telefone": "5511972888469", "e-mail": "luciana.dotim@gmail.com", "data": "2026-01-17", "lote": "Lista de Espera", "anuncio": "SDALE073", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Diogo de Carvalho", "telefone": "5521998218064", "e-mail": "diogodecarvalho@live.com", "data": "2026-01-17", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "bellemeranilzaanilza@gmail.com", "telefone": "5541984668514", "e-mail": "bellemeranilzaanilza@gmail.com", "data": "2026-01-17", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "vinicius.13vs23@gmail.com", "telefone": "5511963843277", "e-mail": "vinicius.13vs23@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "grupoguidoni1@gmail.com", "telefone": "5512987124760", "e-mail": "grupoguidoni1@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "decipaivadosantos1951@gmail.com", "telefone": "5561984836692", "e-mail": "decipaivadosantos1951@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "ERISNALDA", "telefone": "5586999557800", "e-mail": "drogariacastrokj@gmai.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE085", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "JURANDIR AMANCIO DA SILVA", "telefone": "5579991373428", "e-mail": "contjurandir@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDAL1096", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "pedrooliveirademetrio@gmail.com", "telefone": "5541997359643", "e-mail": "pedrooliveirademetrio@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vandro", "telefone": "556197888889", "e-mail": "bbg@gmail.com", "data": "2026-01-15", "lote": "Lote 1", "anuncio": "SDAL1108", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "jessicaseixasb@gmail.com", "telefone": "5579996820992", "e-mail": "jessicaseixasb@gmail.com", "data": "2026-01-14", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "cleosouza611@gmail.com", "telefone": "5592991522086", "e-mail": "cleosouza611@gmail.com", "data": "2026-01-14", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "gislainegouveia764@gmail.com", "telefone": "5582988979172", "e-mail": "gislainegouveia764@gmail.com", "data": "2026-01-14", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "sscarlety@hotmail.com", "telefone": "5511977118744", "e-mail": "sscarlety@hotmail.com", "data": "2026-01-14", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "marcilio@casafortaleza.com.br", "telefone": "5511998668858", "e-mail": "marcilio@casafortaleza.com.br", "data": "2026-01-13", "lote": "Sem Lote", "anuncio": "geral", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "adrianasoll.rj@gmail.com", "telefone": "5521982813122", "e-mail": "adrianasoll.rj@gmail.com", "data": "2026-01-12", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "euanapauladossantos@gmail.com", "telefone": "5583986832558", "e-mail": "euanapauladossantos@gmail.com", "data": "2026-01-12", "lote": "Lista de Espera", "anuncio": "SDALE069", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "IZAURA", "telefone": "5528999269455", "e-mail": "izaura-pradogc@outlook.pt", "data": "2026-01-12", "lote": "Lista de Espera", "anuncio": "SDALE073", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Wellyngton Prince bacelar Reis", "telefone": "551193253341", "e-mail": "wellyntonprince@gmail.com", "data": "2026-01-11", "lote": "Lote 1", "anuncio": "SDAL1096", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "EDIR", "telefone": "5533991113455", "e-mail": "edirpaiva2017@gmail.com", "data": "2026-01-11", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "edson", "telefone": "5585992233196", "e-mail": "bolaboneca@gmail.com", "data": "2026-01-10", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "persi.brigida@gmail.com", "telefone": "5521992184610", "e-mail": "persi.brigida@gmail.com", "data": "2026-01-10", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "nubiagoncalves285@gmail.com", "telefone": "5531984754273", "e-mail": "nubiagoncalves285@gmail.com", "data": "2026-01-10", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Luciano", "telefone": "5512991470003", "e-mail": "lucianoantunes76@gmail.com", "data": "2026-01-09", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "tommy.donald.nelson@gmail.com", "telefone": "5511999566033", "e-mail": "tommy.donald.nelson@gmail.com", "data": "2026-01-09", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "franlima2889@gmail.com", "telefone": "5562985397345", "e-mail": "franlima2889@gmail.com", "data": "2026-01-08", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "ramir_31@hotmail.com", "telefone": "5511993313687", "e-mail": "ramir_31@hotmail.com", "data": "2026-01-08", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Jairo", "telefone": "5549999611465", "e-mail": "jairodouglassoares512@gmail.com", "data": "2026-01-07", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "regipaiao@gmail.com", "telefone": "5518996922995", "e-mail": "regipaiao@gmail.com", "data": "2026-01-07", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "GIOVANNA", "telefone": "5511972994584", "e-mail": "giovannasilvasantos2005@gmail.com", "data": "2026-01-06", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "leo.cavagnini@gmail.com", "telefone": "5519996333061", "e-mail": "leo.cavagnini@gmail.com", "data": "2026-01-04", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vitor Jesus", "telefone": "5594984311247", "e-mail": "contato.vitormanoel24@gmail.com", "data": "2025-12-29", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "williamviegas@gmail.com", "telefone": "5565992848007", "e-mail": "williamviegas@gmail.com", "data": "2025-12-18", "lote": "Lista de Espera", "anuncio": "SDALE042", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Thamara o f moraes", "telefone": "5511940257094", "e-mail": "thamarafmoraes@gmail.com", "data": "2025-12-17", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "tatianneg@yahoo.com.br", "telefone": "5511983037619", "e-mail": "tatianneg@yahoo.com.br", "data": "2025-12-17", "lote": "Lista de Espera", "anuncio": "segredos da audiencia", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "aretuzafonseca@yahoo.com.br", "telefone": "5511975207100", "e-mail": "aretuzafonseca@yahoo.com.br", "data": "2025-12-17", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "luizmatheusrs@gmail.com", "telefone": "5551991996913", "e-mail": "luizmatheusrs@gmail.com", "data": "2025-12-15", "lote": "Lista de Espera", "anuncio": "SDALE033", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "julioce17@icloud.com", "telefone": "5519999270235", "e-mail": "julioce17@icloud.com", "data": "2025-12-15", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "estrategiamastermkt@gmail.com", "telefone": "5579999314491", "e-mail": "estrategiamastermkt@gmail.com", "data": "2025-12-14", "lote": "Lista de Espera", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Eliete Carvalho", "telefone": "5511964512939", "e-mail": "eliete.c.rafa@gmail.com", "data": "2025-12-12", "lote": "Lista de Espera", "anuncio": "SDALE027", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "JOCYANNEE Y NALDO", "telefone": "5583981616857", "e-mail": "jocianepereira.1966@gmail.com", "data": "2025-12-11", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "tamararibeiromacedo@gmail.com", "telefone": "5511980783393", "e-mail": "tamararibeiromacedo@gmail.com", "data": "2025-12-11", "lote": "Lista de Espera", "anuncio": "SDALE037", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Marcos", "telefone": "5583996739618", "e-mail": "marcosmenino72@gmail.com", "data": "2025-12-11", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "anatalkspodcast@gmail.com", "telefone": "5541998081120", "e-mail": "anatalkspodcast@gmail.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Nathália Mochinsky", "telefone": "5547996314954", "e-mail": "nathalia.mochinsky@gmail.com", "data": "2025-12-09", "lote": "Sem Lote", "anuncio": "comunicado", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maryana", "telefone": "5562991498113", "e-mail": "maryferreiradoamaral@gmail.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "laisaluc@gmail.com", "telefone": "5548996901283", "e-mail": "laisaluc@gmail.com", "data": "2025-12-09", "lote": "Sem Lote", "anuncio": "comunicado", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "engenharia@jgainstalacoes.com", "telefone": "5511959561592", "e-mail": "engenharia@jgainstalacoes.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Alexandre", "telefone": "5584987091400", "e-mail": "alexandrefilhocrs@gmail.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE005", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "lucas.dsc@live.com", "telefone": "5532988561700", "e-mail": "lucas.dsc@live.com", "data": "2025-12-08", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "CINTHIA FRANCO", "telefone": "5511986965269", "e-mail": "", "data": "2025-11-24", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Anderson Martins", "telefone": "5535988036824", "e-mail": "andersonmartinsgestor@gmail.com", "data": "2025-11-14", "lote": "Sem Lote", "anuncio": "ME353-video-PlayersDigitalv2-Depoimentos", "tipo": "Sem Perfil", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "𝖞𝖗𝖔𝖈𝖐", "telefone": "5582996042116", "e-mail": "yrockeliel@gmail.com", "data": "2026-03-04", "lote": "Sem Lote", "anuncio": "SDARL2212", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Andreza", "telefone": "5521994161016", "e-mail": "andreza.ags@hotmail.com", "data": "2026-03-02", "lote": "Sem Lote", "anuncio": "SDARL2212", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Ernando", "telefone": "", "e-mail": "anny37450@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Lorraine Tomaz Reis", "telefone": "5535997137979", "e-mail": "lorraynethomaz595@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Patrícia Carraro Cordeiro", "telefone": "556999352610", "e-mail": "cpatriciacarraro@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Levy", "telefone": "5521975176772", "e-mail": "daviluccadlss21@gmail.com", "data": "2026-03-02", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Jenifer Alves | planejadora", "telefone": "5574988098305", "e-mail": "jenifer.slv.alves@gmail.com", "data": "2026-03-02", "lote": "Sem Lote", "anuncio": "SDARL2215", "tipo": "Perdido", "fase": "3.⁠ ⁠Em contato"}, {"Nome do contato": "Gleidson cavalcante", "telefone": "5555749885656", "e-mail": "grandcarveiculo@hotmail.com", "data": "2026-03-02", "lote": "Sem Lote", "anuncio": "SDARL2212", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Diogo", "telefone": "5555639923951", "e-mail": "diogofcostav@gmail.com", "data": "2026-03-02", "lote": "Sem Lote", "anuncio": "SDARL2212", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Wjdhcskgex", "telefone": "558135087964", "e-mail": "jhonnaikerrivas4@gmail.com", "data": "2026-02-28", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "henzo barros", "telefone": "5562998620150", "e-mail": "henzobarros38@gmail.com", "data": "2026-02-28", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Edina Melgarejo", "telefone": "5569992839787", "e-mail": "edinamelgarejo2@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "DASDADASDAS", "telefone": "5515996402233", "e-mail": "asddasasd@hotmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "teste", "telefone": "", "e-mail": "teste@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "teste", "telefone": "", "e-mail": "tes@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maria Eduarda Costa", "telefone": "5537998324517", "e-mail": "dudaaaacosta3521@gmail.com", "data": "2026-02-27", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Marco Maker", "telefone": "5555359991862", "e-mail": "bubusabino04@gmail.com", "data": "2026-02-26", "lote": "Sem Lote", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "3.⁠ ⁠Em contato"}, {"Nome do contato": "Raquel", "telefone": "5561993029229", "e-mail": "raqtavares@gmail.com", "data": "2026-02-26", "lote": "Sem Lote", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Almir", "telefone": "5514999106552", "e-mail": "as9534842@gmail.com", "data": "2026-02-26", "lote": "Sem Lote", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Wallison Luiz", "telefone": "", "e-mail": "wallisonluizcostafilho@gmail.com", "data": "2026-02-26", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Marli apareçida Pereira", "telefone": "5555699289747", "e-mail": "marliaparecidapereira91@gmail.com", "data": "2026-02-25", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vitor Torres", "telefone": "5531971730476", "e-mail": "vittor.torres@gmail.com", "data": "2026-02-25", "lote": "Sem Lote", "anuncio": "SDAL2190", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Ilza Manuele Sauza dos Santos", "telefone": "559292129399", "e-mail": "ilzicleys@gmail.com", "data": "2026-02-25", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Cleones Chagas", "telefone": "5527999007195", "e-mail": "cleoneschagasdejesus1989@gmail.com", "data": "2026-02-25", "lote": "Sem Lote", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "1.⁠ ⁠Base"}, {"Nome do contato": "Lucas Pereira", "telefone": "", "e-mail": "lucas12317@gmail.com", "data": "2026-02-25", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "1.⁠ ⁠Base"}, {"Nome do contato": "Leonildo N.A. Deus acima de", "telefone": "553496667179", "e-mail": "nogueiraaraujo.leonildo@gmail.com", "data": "2026-02-25", "lote": "Sem Lote", "anuncio": "SDARL2194", "tipo": "Perdido", "fase": "1.⁠ ⁠Base"}, {"Nome do contato": "Márcia Rejane", "telefone": "5585988064567", "e-mail": "marcia_dez@hotmail.com", "data": "2026-02-25", "lote": "Sem Lote", "anuncio": "SDAL2190", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Juliesi", "telefone": "5541998179834", "e-mail": "juliponde@hotmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Kleber Guerra |", "telefone": "5541992010658", "e-mail": "kguerrabambam@hotmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDARL2194", "tipo": "Perdido", "fase": "1.⁠ ⁠Base"}, {"Nome do contato": "Marlete Ribeiro da Silva", "telefone": "", "e-mail": "marly909999@gmail.com", "data": "2026-02-24", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Roseane", "telefone": "5511960692824", "e-mail": "rooseaneoliveiraa@hotmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "1.⁠ ⁠Base"}, {"Nome do contato": "Camila Rodrigues | Estrategista", "telefone": "5541996436132", "e-mail": "cahrodrigues_23@hotmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Lea Dirce", "telefone": "5541999854418", "e-mail": "leadpimentel@gmail.com", "data": "2026-02-24", "lote": "Sem Lote", "anuncio": "SDAL2181", "tipo": "Perdido", "fase": "1.⁠ ⁠Base"}, {"Nome do contato": "murillogabrieldominogs@gmail.com", "telefone": "5514996879263", "e-mail": "murillogabrieldominogs@gmail.com", "data": "2026-02-19", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "vanessaalvespatrocinio@gmail.com", "telefone": "33997344791", "e-mail": "vanessaalvespatrocinio@gmail.com", "data": "2026-02-16", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Davi Gomes Souza", "telefone": "5522981798862", "e-mail": "davigsouzajr28@gmail.com", "data": "2026-02-16", "lote": "Lista de Espera", "anuncio": "sda samuel pereira", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "joserobertojunqueira84@gmail.com", "telefone": "55997306116", "e-mail": "joserobertojunqueira84@gmail.com", "data": "2026-02-13", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Leandro de moraes", "telefone": "55994059430", "e-mail": "demoraesforever@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Ana Paula da Silva", "telefone": "", "e-mail": "jesurumojustoretopoderoso@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Guilherme Alves Alves", "telefone": "", "e-mail": "guilhermealves.gdre@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Rhuan", "telefone": "", "e-mail": "guilhermealves.gocp@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "TU E TUA FAMILIA SAO UNS CUCKOLDS", "telefone": "", "e-mail": "vaiparafalenciafilhodaputa@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vai Vender Cursos La Na Casa do Caralho Golpista de Merda", "telefone": "5598999999343", "e-mail": "tueummerda@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "VAICHUPARUMAPICAFILHODAPUTA", "telefone": "558304341444", "e-mail": "vaichuparumapicafilhodaputa@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": 7586, "telefone": "", "e-mail": "andresantossnts45@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Rannah0793", "telefone": "", "e-mail": "rannahdanielly949@gmail.com", "data": "2026-02-12", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Almerinda Costa Braz", "telefone": "5582981267343", "e-mail": "almerinda.braz@hotmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDAL2163", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Amanda Vinicius", "telefone": "", "e-mail": "amandavinicius20mivi@gmail.com", "data": "2026-02-11", "lote": "Google Pmax", "anuncio": "Google Pmax", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "INGRID PAULUK", "telefone": "5566999207723", "e-mail": "ingridpauluk20@hotmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDAL2163", "tipo": "Perdido", "fase": "3.⁠ ⁠Em contato"}, {"Nome do contato": "PETERSON", "telefone": "5598984227191", "e-mail": "petersonalmeida85@hotmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDAPV054", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Claudia", "telefone": "5511974639144", "e-mail": "claudiaconfortodesa@gmail.com", "data": "2026-02-11", "lote": "Sem Lote", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Sheila Possi", "telefone": "5511965366180", "e-mail": "asshfe.16@gmail.com", "data": "2026-02-05", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Caroline", "telefone": "5511913068998", "e-mail": "benatica@hotmail.com", "data": "2026-02-04", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Bruno", "telefone": "5585986469379", "e-mail": "brmoraes3@gmail.com", "data": "2026-02-03", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maria Eliane", "telefone": "5521992534358", "e-mail": "elainemf101@gmail.com", "data": "2026-01-31", "lote": "Lista de Espera", "anuncio": "SDAL1106", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Elisa", "telefone": "5555981441566", "e-mail": "elisa.ermida.ramos@hotmail.com", "data": "2026-01-29", "lote": "Lista de Espera", "anuncio": "SDAL1138", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Nicolly", "telefone": "5522999560968", "e-mail": "nicolly.jacob@gmail.vo", "data": "2026-01-29", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "André Nascimento", "telefone": "5511980564228", "e-mail": "carlos.andre_13@hotmail.com", "data": "2026-01-28", "lote": "Lista de Espera", "anuncio": "SDAL1138", "tipo": "Perdido", "fase": "3.⁠ ⁠Em contato"}, {"Nome do contato": "Mariana Ribeiro", "telefone": "5561991713361", "e-mail": "mari.rcs@hotmail.com", "data": "2026-01-28", "lote": "Lista de Espera", "anuncio": "SDAL1138", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Marilha Joyce", "telefone": "5516991809163", "e-mail": "marilhajoyce@gmail.com", "data": "2026-01-27", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Bruna", "telefone": "5555999689289", "e-mail": "brunaa160817@gmail.com", "data": "2026-01-27", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Denilza", "telefone": "5511946560322", "e-mail": "denilza.soares.jeremias@gmail.com", "data": "2026-01-26", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Emilia Paulina Arantes", "telefone": "5524998178360", "e-mail": "emiliapaulina.a13@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDAL1096", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vinicioavelinofilho", "telefone": "5531997579918", "e-mail": "gerenciapostosvila@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vander José de Souza Borges", "telefone": "5535991469123", "e-mail": "vanderagro@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Emanuel", "telefone": "5599981765251", "e-mail": "emanuellimads1234@gmail.com", "data": "2026-01-25", "lote": "Lote 1", "anuncio": "SDAL1126", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Daiane", "telefone": "51994136612", "e-mail": "daianefagundes367@gmail.com", "data": "2026-01-24", "lote": "Lote 1", "anuncio": "SDAL1096", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Alexandre", "telefone": "5537998280984", "e-mail": "alexandresantosaraujo@hotmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maria Fernanda da Paz", "telefone": "5521982299888", "e-mail": "nandapaz@gmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Erika da Rocha Valença", "telefone": "5581992474646", "e-mail": "erikarocha.rommanel@gmail.com", "data": "2026-01-23", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Petterson Perri", "telefone": "5511915140326", "e-mail": "petterson@segredosdaaudiencia.com.br", "data": "2026-01-22", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Fatima carla de oliveira da Silva", "telefone": "5595999676765", "e-mail": "carlaagnes2020@gmail.com", "data": "2026-01-22", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vanessa barry", "telefone": "552198941578", "e-mail": "vanessaandreiarosa2274@gmail.com", "data": "2026-01-21", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Fabiano Mello Dias", "telefone": "5519974024764", "e-mail": "fabiano@ksferramentaria.com.br", "data": "2026-01-21", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "João", "telefone": "5511987331497", "e-mail": "felipejfrm34@gmail.com", "data": "2026-01-21", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Aline", "telefone": "5511956243234", "e-mail": "aline44267@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Milena", "telefone": "5555119940998", "e-mail": "milenamr15@hotmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Isksks", "telefone": "5511919728281", "e-mail": "ffrggggh@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDAL1106", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Whelica", "telefone": "5511988485583", "e-mail": "whellyk@hotmail.com", "data": "2026-01-20", "lote": "Lista de Espera", "anuncio": "SDAL1106", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Wallace", "telefone": "5521997172800", "e-mail": "wallacebendavid@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Samira", "telefone": "5531992173241", "e-mail": "sucessodigitalsamy@gmail.com", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Cleyton", "telefone": "5511951452947", "e-mail": "contato@grupoqq.com.br", "data": "2026-01-20", "lote": "Lote 1", "anuncio": "SDALE084", "tipo": "Perdido", "fase": "3.⁠ ⁠Em contato"}, {"Nome do contato": "Lumena", "telefone": "5527988898577", "e-mail": "lumenafurtadoaltoe@gmail.com", "data": "2026-01-19", "lote": "Lote 1", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Ana", "telefone": "5545996785869", "e-mail": "bajajsjs@gmail.com", "data": "2026-01-19", "lote": "Lote 1", "anuncio": "SDAL1117", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "rosinalvabarros1976@gmail.com", "telefone": "5511953985587", "e-mail": "rosinalvabarros1976@gmail.com", "data": "2026-01-19", "lote": "Lista de Espera", "anuncio": "SDALE085", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "marcelanelima7@gmail.com", "telefone": "", "e-mail": "marcelanelima7@gmail.com", "data": "2026-01-19", "lote": "Lista de Espera", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Lucas Oliveira", "telefone": "5591983229234", "e-mail": "oluckasoliveira@gmail.com", "data": "2026-01-18", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Caty", "telefone": "5575981656223", "e-mail": "andradecatianesouza@gmail.com", "data": "2026-01-18", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Diogo de Carvalho", "telefone": "5521998218064", "e-mail": "diogodecarvalho@live.com", "data": "2026-01-17", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "geicinhalima0@gmail.com", "telefone": "5599984176454", "e-mail": "geicinhalima0@gmail.com", "data": "2026-01-17", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "vinicius.13vs23@gmail.com", "telefone": "5511963843277", "e-mail": "vinicius.13vs23@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE083", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "decipaivadosantos1951@gmail.com", "telefone": "5561984836692", "e-mail": "decipaivadosantos1951@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "ERISNALDA", "telefone": "5586999557800", "e-mail": "drogariacastrokj@gmai.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDALE085", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "JURANDIR AMANCIO DA SILVA", "telefone": "5579991373428", "e-mail": "contjurandir@gmail.com", "data": "2026-01-16", "lote": "Lista de Espera", "anuncio": "SDAL1096", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vandro", "telefone": "556197888889", "e-mail": "bbg@gmail.com", "data": "2026-01-15", "lote": "Lote 1", "anuncio": "SDAL1108", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "cleosouza611@gmail.com", "telefone": "5592991522086", "e-mail": "cleosouza611@gmail.com", "data": "2026-01-14", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "marcilio@casafortaleza.com.br", "telefone": "5511998668858", "e-mail": "marcilio@casafortaleza.com.br", "data": "2026-01-13", "lote": "Sem Lote", "anuncio": "geral", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "adrianasoll.rj@gmail.com", "telefone": "5521982813122", "e-mail": "adrianasoll.rj@gmail.com", "data": "2026-01-12", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "euanapauladossantos@gmail.com", "telefone": "5583986832558", "e-mail": "euanapauladossantos@gmail.com", "data": "2026-01-12", "lote": "Lista de Espera", "anuncio": "SDALE069", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "IZAURA", "telefone": "5528999269455", "e-mail": "izaura-pradogc@outlook.pt", "data": "2026-01-12", "lote": "Lista de Espera", "anuncio": "SDALE073", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Wellyngton Prince bacelar Reis", "telefone": "551193253341", "e-mail": "wellyntonprince@gmail.com", "data": "2026-01-11", "lote": "Lote 1", "anuncio": "SDAL1096", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "EDIR", "telefone": "5533991113455", "e-mail": "edirpaiva2017@gmail.com", "data": "2026-01-11", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "persi.brigida@gmail.com", "telefone": "5521992184610", "e-mail": "persi.brigida@gmail.com", "data": "2026-01-10", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "nubiagoncalves285@gmail.com", "telefone": "5531984754273", "e-mail": "nubiagoncalves285@gmail.com", "data": "2026-01-10", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Luciano", "telefone": "5512991470003", "e-mail": "lucianoantunes76@gmail.com", "data": "2026-01-09", "lote": "Lista de Espera", "anuncio": "SDALE068", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "tommy.donald.nelson@gmail.com", "telefone": "5511999566033", "e-mail": "tommy.donald.nelson@gmail.com", "data": "2026-01-09", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "franlima2889@gmail.com", "telefone": "5562985397345", "e-mail": "franlima2889@gmail.com", "data": "2026-01-08", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "ramir_31@hotmail.com", "telefone": "5511993313687", "e-mail": "ramir_31@hotmail.com", "data": "2026-01-08", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "regipaiao@gmail.com", "telefone": "5518996922995", "e-mail": "regipaiao@gmail.com", "data": "2026-01-07", "lote": "Lista de Espera", "anuncio": "SDALE006", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "GIOVANNA", "telefone": "5511972994584", "e-mail": "giovannasilvasantos2005@gmail.com", "data": "2026-01-06", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Vitor Jesus", "telefone": "5594984311247", "e-mail": "contato.vitormanoel24@gmail.com", "data": "2025-12-29", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "williamviegas@gmail.com", "telefone": "5565992848007", "e-mail": "williamviegas@gmail.com", "data": "2025-12-18", "lote": "Lista de Espera", "anuncio": "SDALE042", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "tatianneg@yahoo.com.br", "telefone": "5511983037619", "e-mail": "tatianneg@yahoo.com.br", "data": "2025-12-17", "lote": "Lista de Espera", "anuncio": "segredos da audiencia", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "julioce17@icloud.com", "telefone": "5519999270235", "e-mail": "julioce17@icloud.com", "data": "2025-12-15", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "estrategiamastermkt@gmail.com", "telefone": "5579999314491", "e-mail": "estrategiamastermkt@gmail.com", "data": "2025-12-14", "lote": "Lista de Espera", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Eliete Carvalho", "telefone": "5511964512939", "e-mail": "eliete.c.rafa@gmail.com", "data": "2025-12-12", "lote": "Lista de Espera", "anuncio": "SDALE027", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "tamararibeiromacedo@gmail.com", "telefone": "5511980783393", "e-mail": "tamararibeiromacedo@gmail.com", "data": "2025-12-11", "lote": "Lista de Espera", "anuncio": "SDALE037", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "liviafagi@terra.com.br", "telefone": "5567981110790", "e-mail": "liviafagi@terra.com.br", "data": "2025-12-11", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "Marcos", "telefone": "5583996739618", "e-mail": "marcosmenino72@gmail.com", "data": "2025-12-11", "lote": "Lista de Espera", "anuncio": "SDAL1152", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "anatalkspodcast@gmail.com", "telefone": "5541998081120", "e-mail": "anatalkspodcast@gmail.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Nathália Mochinsky", "telefone": "5547996314954", "e-mail": "nathalia.mochinsky@gmail.com", "data": "2025-12-09", "lote": "Sem Lote", "anuncio": "comunicado", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Maryana", "telefone": "5562991498113", "e-mail": "maryferreiradoamaral@gmail.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "laisaluc@gmail.com", "telefone": "5548996901283", "e-mail": "laisaluc@gmail.com", "data": "2025-12-09", "lote": "Sem Lote", "anuncio": "comunicado", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "engenharia@jgainstalacoes.com", "telefone": "5511959561592", "e-mail": "engenharia@jgainstalacoes.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE004", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Alexandre", "telefone": "5584987091400", "e-mail": "alexandrefilhocrs@gmail.com", "data": "2025-12-09", "lote": "Lista de Espera", "anuncio": "SDALE005", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "lucas.dsc@live.com", "telefone": "5532988561700", "e-mail": "lucas.dsc@live.com", "data": "2025-12-08", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "jefersonsouza976@gmail.com", "telefone": "5532999285750", "e-mail": "jefersonsouza976@gmail.com", "data": "2025-12-08", "lote": "Sem Lote", "anuncio": "Link in Bio", "tipo": "Perdido", "fase": "2.⁠ ⁠Novos Leads"}, {"Nome do contato": "CINTHIA FRANCO", "telefone": "5511986965269", "e-mail": "", "data": "2025-11-24", "lote": "Sem Lote", "anuncio": "Sem UTM", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}, {"Nome do contato": "Anderson Martins", "telefone": "5535988036824", "e-mail": "andersonmartinsgestor@gmail.com", "data": "2025-11-14", "lote": "Sem Lote", "anuncio": "ME353-video-PlayersDigitalv2-Depoimentos", "tipo": "Perdido", "fase": "4.⁠ ⁠Sem perfil | Desqualificado"}];
+const COMPRAS={"Google Pmax":0,"SDALE006":2,"SDALE084":5,"SDALE083":4,"SDALE068":2,"SDAL1152":2,"SDALE004":31,"SDAL1096":0,"SDAL1106":0,"SDALE037":12,"SDALE003":13,"SDAL1138":6,"SDALE085":5,"Link in Bio":0,"Sem UTM":0};
+let FD=[...RAW];
+let CH={};
+Chart.defaults.font.family='DM Sans';Chart.defaults.color='#98988f';
+const C={blue:'rgba(37,72,212,.82)',red:'rgba(184,48,48,.82)',orange:'rgba(184,90,16,.75)',green:'rgba(24,104,64,.82)',gray:'rgba(120,120,112,.5)'};
 
-// DATA
-const desqPorAnuncio = [
-  { cod:'Google Pmax', perdidos:26, semPer:21, compras:0 },
-  { cod:'SDALE006',    perdidos:18, semPer:20, compras:2 },
-  { cod:'SDALE084',    perdidos:10, semPer:10, compras:5 },
-  { cod:'SDALE083',    perdidos:8,  semPer:9,  compras:4 },
-  { cod:'Sem UTM',     perdidos:8,  semPer:9,  compras:0 },
-  { cod:'SDALE068',    perdidos:5,  semPer:8,  compras:2 },
-  { cod:'Link in Bio', perdidos:6,  semPer:7,  compras:0 },
-  { cod:'SDAL1152',    perdidos:5,  semPer:7,  compras:2 },
-  { cod:'SDALE004',    perdidos:3,  semPer:4,  compras:31 },
-  { cod:'SDAL1096',    perdidos:4,  semPer:3,  compras:0 },
-  { cod:'SDAL1106',    perdidos:3,  semPer:4,  compras:0 },
-  { cod:'SDALE037',    perdidos:1,  semPer:1,  compras:12 },
-  { cod:'SDALE003',    perdidos:1,  semPer:0,  compras:13 },
-  { cod:'SDAL1138',    perdidos:3,  semPer:1,  compras:6 },
-  { cod:'SDALE085',    perdidos:2,  semPer:2,  compras:5 },
-].map(d=>({...d, total:d.perdidos+d.semPer})).sort((a,b)=>b.total-a.total);
-
-const C = {
-  blue:'rgba(37,72,212,0.82)',
-  blueSoft:'rgba(37,72,212,0.18)',
-  red:'rgba(184,48,48,0.82)',
-  redSoft:'rgba(184,48,48,0.18)',
-  green:'rgba(24,104,64,0.82)',
-  greenSoft:'rgba(24,104,64,0.18)',
-  orange:'rgba(184,90,16,0.75)',
-  gray:'rgba(120,120,112,0.5)',
-};
-
-const opts = (extra={}) => ({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}},scales:{y:{grid:{color:'#eaeae4'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}, ...extra});
-
-// 1. Desq por anuncio (top 10)
-const top10 = desqPorAnuncio.slice(0,10);
-new Chart(document.getElementById('cDesqAnuncio'),{
-  type:'bar',
-  data:{ labels:top10.map(d=>d.cod), datasets:[{label:'Total Desqualif.',data:top10.map(d=>d.total),backgroundColor:top10.map(d=>d.total>20?C.red:d.total>10?C.orange:C.gray),borderRadius:5}]},
-  options:{...opts(),plugins:{legend:{display:false}}}
-});
-
-// 2. Compras vs Desq
-const filtered = desqPorAnuncio.filter(d=>d.compras>0||d.total>5).slice(0,10);
-new Chart(document.getElementById('cComprasVsDesq'),{
-  type:'bar',
-  data:{
-    labels:filtered.map(d=>d.cod),
-    datasets:[
-      {label:'Compras',data:filtered.map(d=>d.compras),backgroundColor:C.green,borderRadius:4,yAxisID:'y'},
-      {label:'Desqualif.',data:filtered.map(d=>d.total),backgroundColor:C.red,borderRadius:4,yAxisID:'y1'}
-    ]
-  },
-  options:{...opts(),scales:{y:{type:'linear',position:'left',grid:{color:'#eaeae4'},ticks:{font:{size:10}}},y1:{type:'linear',position:'right',grid:{display:false},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
-});
-
-// 3. Stacked
-const top8 = desqPorAnuncio.slice(0,8);
-new Chart(document.getElementById('cStacked'),{
-  type:'bar',
-  data:{
-    labels:top8.map(d=>d.cod),
-    datasets:[
-      {label:'Sem Perfil',data:top8.map(d=>d.semPer),backgroundColor:'rgba(184,90,16,0.75)',borderRadius:4,stack:'s'},
-      {label:'Perdidos',data:top8.map(d=>d.perdidos),backgroundColor:C.red,borderRadius:4,stack:'s'}
-    ]
-  },
-  options:{...opts(),plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}}}
-});
-
-// 4. Fonte (Google vs Meta vs Orgânico)
-new Chart(document.getElementById('cFonte'),{
-  type:'doughnut',
-  data:{
-    labels:['Google Pmax','Meta Ads','Sem UTM / Orgânico'],
-    datasets:[{data:[47, 210-17, 17+13], backgroundColor:[C.orange,C.blue,C.gray], borderWidth:0, hoverOffset:8}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:16}}}}
-});
-
-// 5. Matriz risco (scatter-like com bar horizontal)
-const riskData = desqPorAnuncio.slice(0,12);
-new Chart(document.getElementById('cMatrizRisco'),{
-  type:'bar',
-  data:{
-    labels:riskData.map(d=>d.cod),
-    datasets:[
-      {label:'Compras',data:riskData.map(d=>d.compras),backgroundColor:C.green,borderRadius:4,yAxisID:'y'},
-      {label:'Sem Perfil',data:riskData.map(d=>d.semPer),backgroundColor:'rgba(184,90,16,0.75)',borderRadius:4,yAxisID:'y1'},
-      {label:'Perdidos',data:riskData.map(d=>d.perdidos),backgroundColor:C.red,borderRadius:4,yAxisID:'y1'}
-    ]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}},scales:{y:{type:'linear',position:'left',title:{display:true,text:'Compras',color:'#6a6a60'},grid:{color:'#eaeae4'},ticks:{font:{size:10}}},y1:{type:'linear',position:'right',title:{display:true,text:'Desqualificados',color:'#6a6a60'},grid:{display:false},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
-});
-
-// 6. Perdidos por anuncio
-const perdData = desqPorAnuncio.slice(0,10);
-new Chart(document.getElementById('cPerdidosAnuncio'),{
-  type:'bar',
-  data:{labels:perdData.map(d=>d.cod),datasets:[{label:'Perdidos',data:perdData.map(d=>d.perdidos),backgroundColor:C.red,borderRadius:5}]},
-  options:{...opts(),plugins:{legend:{display:false}}}
-});
-
-// 7. Perdidos por fase
-new Chart(document.getElementById('cPerdidosFase'),{
-  type:'doughnut',
-  data:{
-    labels:['Sem perfil | Desqualif.','Novos Leads','Base','Em contato'],
-    datasets:[{data:[97,21,6,5],backgroundColor:[C.red,C.orange,'rgba(120,120,112,0.6)',C.blue],borderWidth:0,hoverOffset:6}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12}}}}
-});
-
-// 8. Sem Perfil por anuncio
-const spData = [
-  {cod:'Google Pmax',v:21},{cod:'SDALE006',v:20},{cod:'SDALE084',v:10},{cod:'SDALE083',v:9},
-  {cod:'SDALE068',v:8},{cod:'Link in Bio',v:7},{cod:'Sem UTM',v:9},{cod:'SDAL1152',v:7},
-  {cod:'SDAL1106',v:4},{cod:'SDALE004',v:4}
-].sort((a,b)=>b.v-a.v);
-new Chart(document.getElementById('cSemPerAnuncio'),{
-  type:'bar',
-  data:{labels:spData.map(d=>d.cod),datasets:[{label:'Sem Perfil',data:spData.map(d=>d.v),backgroundColor:C.orange,borderRadius:5}]},
-  options:{...opts(),plugins:{legend:{display:false}}}
-});
-
-// 9. Sem Perfil por origem
-new Chart(document.getElementById('cSemPerOrigem'),{
-  type:'doughnut',
-  data:{
-    labels:['Google Pmax','Meta Ads','Link in Bio','Sem UTM/Outros'],
-    datasets:[{data:[21,87,7,13],backgroundColor:[C.orange,C.blue,'rgba(120,120,112,0.6)',C.gray],borderWidth:0,hoverOffset:6}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12}}}}
-});
-
-// TABLES
-function riskPill(total, compras){
-  const ratio = compras>0 ? total/compras : 99;
-  if(ratio>10||compras===0&&total>10) return '<span class="pill pr">🔴 Alto</span>';
-  if(ratio>3) return '<span class="pill po">🟡 Médio</span>';
-  return '<span class="pill pg">🟢 Baixo</span>';
+function init(){
+  const ans=[...new Set(RAW.map(r=>r.anuncio))].sort();
+  const s=document.getElementById('fan');
+  ans.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;s.appendChild(o);});
+  document.getElementById('fd1').value='2025-11-01';
+  document.getElementById('fd2').value='2026-03-31';
+  af();
+  initLotes();
 }
 
-// Risco table
-document.getElementById('tRisco').innerHTML = desqPorAnuncio.map((d,i)=>{
-  const ratio = d.compras>0 ? (d.total/d.compras).toFixed(1)+'x' : '∞';
-  return `<tr>
+function af(){
+  const f1=document.getElementById('fd1').value;
+  const f2=document.getElementById('fd2').value;
+  const tp=document.getElementById('ftipo').value;
+  const an=document.getElementById('fan').value;
+  FD=RAW.filter(r=>{
+    if(f1&&r.data<f1)return false;
+    if(f2&&r.data>f2)return false;
+    if(tp&&r.tipo!==tp)return false;
+    if(an&&r.anuncio!==an)return false;
+    return true;
+  });
+  document.getElementById('finfo').textContent=FD.length+' registros';
+  updateAll();
+}
+
+function rf(){
+  document.getElementById('fd1').value='2025-11-01';
+  document.getElementById('fd2').value='2026-03-31';
+  document.getElementById('ftipo').value='';
+  document.getElementById('fan').value='';
+  af();
+}
+
+function gb(arr,k){return arr.reduce((a,r)=>{a[r[k]]=(a[r[k]]||0)+1;return a;},{});}
+function topN(o,n=10){return Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n);}
+
+function mc(id,cfg){if(CH[id])CH[id].destroy();const c=document.getElementById(id);if(!c)return;CH[id]=new Chart(c,cfg);}
+
+function bo(ex={}){return {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#eaeae4'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}, ...ex};}
+
+function updateAll(){
+  const sp=FD.filter(r=>r.tipo==='Sem Perfil');
+  const pd=FD.filter(r=>r.tipo==='Perdido');
+  document.getElementById('kT').textContent=FD.length;
+  document.getElementById('kSP').textContent=sp.length;
+  document.getElementById('kPD').textContent=pd.length;
+  const byA=gb(FD,'anuncio');
+  const tA=topN(byA,1)[0];
+  if(tA){document.getElementById('kPA').textContent=tA[0];document.getElementById('kPAs').textContent=tA[1]+' desqualificados';}
+  const byL=gb(FD,'lote');
+  const tL=topN(byL,1)[0];
+  if(tL){document.getElementById('kPF').textContent=tL[0]==='Google Pmax'?'G.Pmax':tL[0];document.getElementById('kPFs').textContent=tL[1]+' desqualificados';}
+  const bla=gb(FD,'lote');
+  document.getElementById('cnt-espera').textContent=bla['Lista de Espera']||0;
+  document.getElementById('cnt-lote1').textContent=bla['Lote 1']||0;
+  document.getElementById('cnt-pmax').textContent=bla['Google Pmax']||0;
+  document.getElementById('cnt-outro').textContent=bla['Sem Lote']||0;
+  updateCharts();
+  renderRank();
+  renderC();
+}
+
+function updateCharts(){
+  const byA=gb(FD,'anuncio');
+  const t10=topN(byA,10);
+  mc('cA',{type:'bar',data:{labels:t10.map(d=>d[0]),datasets:[{label:'Desqualif.',data:t10.map(d=>d[1]),backgroundColor:t10.map(d=>d[1]>20?C.red:d[1]>10?C.orange:C.gray),borderRadius:5}]},options:{...bo(),onClick:(e,els)=>{if(els.length){document.getElementById('fan').value=t10[els[0].index][0];af();}},plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:()=>'Clique para filtrar'}}}}});
+  const t8=topN(byA,8);
+  const spA=gb(FD.filter(r=>r.tipo==='Sem Perfil'),'anuncio');
+  const pdA=gb(FD.filter(r=>r.tipo==='Perdido'),'anuncio');
+  mc('cS',{type:'bar',data:{labels:t8.map(d=>d[0]),datasets:[{label:'Sem Perfil',data:t8.map(d=>spA[d[0]]||0),backgroundColor:C.orange,borderRadius:4,stack:'s'},{label:'Perdidos',data:t8.map(d=>pdA[d[0]]||0),backgroundColor:C.red,borderRadius:4,stack:'s'}]},options:{...bo(),plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}}}});
+  const byL=gb(FD,'lote');
+  const lotes=Object.entries(byL).sort((a,b)=>b[1]-a[1]);
+  const loteMap={'Lista de Espera':'espera','Lote 1':'lote1','Google Pmax':'pmax','Sem Lote':'outro'};
+  mc('cL',{type:'doughnut',data:{labels:lotes.map(d=>d[0]),datasets:[{data:lotes.map(d=>d[1]),backgroundColor:[C.red,C.orange,C.blue,C.gray],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const lbl=lotes[els[0].index][0];const vid=loteMap[lbl];if(vid){sv(vid,document.querySelector('.nbtn[onclick*="'+vid+'"]'));};}},plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12}},tooltip:{callbacks:{afterLabel:()=>'Clique para ver lote'}}}}});
+  const byD=gb(FD,'data');
+  const dates=Object.keys(byD).sort();
+  mc('cTL',{type:'line',data:{labels:dates,datasets:[{label:'Desqualif.',data:dates.map(d=>byD[d]),borderColor:C.red,backgroundColor:'rgba(184,48,48,.08)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#eaeae4'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
+}
+
+function renderRank(){
+  const byA=gb(FD,'anuncio');
+  const spA=gb(FD.filter(r=>r.tipo==='Sem Perfil'),'anuncio');
+  const pdA=gb(FD.filter(r=>r.tipo==='Perdido'),'anuncio');
+  const rows=Object.entries(byA).sort((a,b)=>b[1]-a[1]);
+  const mx=rows[0]?.[1]||1;
+  document.getElementById('tRank').innerHTML=rows.map((d,i)=>{
+    const sp=spA[d[0]]||0,pd=pdA[d[0]]||0,tot=d[1];
+    const c=COMPRAS[d[0]]||0;
+    const rat=c>0?(tot/c).toFixed(1)+'x':'∞';
+    const rc=c===0&&tot>5?'pr':tot/Math.max(c,1)>5?'pr':tot/Math.max(c,1)>2?'po':'pg';
+    const rt=rc==='pr'?'🔴 Alto':rc==='po'?'🟡 Médio':'🟢 Baixo';
+    return `<tr style="cursor:pointer" onclick="document.getElementById('fan').value='${d[0]}';af()">
+      <td class="mono">${i+1}</td><td><span class="code">${d[0]}</span></td>
+      <td class="num">${sp}</td><td class="num">${pd}</td>
+      <td><div class="brow"><span class="num" style="font-weight:600">${tot}</span><div class="bbg"><div class="bf" style="width:${tot/mx*100}%;background:var(--red)"></div></div></div></td>
+      <td class="num" style="color:var(--green);font-weight:600">${c||'—'}</td>
+      <td class="num" style="color:${c>0&&tot/c<3?'var(--green)':'var(--red)'}">${rat}</td>
+      <td><span class="pill ${rc}">${rt}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderC(){
+  const srch=(document.getElementById('srch')?.value||'').toLowerCase();
+  const d=FD.filter(r=>!srch||String(r['Nome do contato']).toLowerCase().includes(srch)||r['e-mail'].toLowerCase().includes(srch));
+  document.getElementById('cSub').textContent=d.length+' registros';
+  document.getElementById('tC').innerHTML=d.map((r,i)=>`<tr>
     <td class="mono">${i+1}</td>
-    <td><span class="code">${d.cod}</span></td>
-    <td class="num" style="color:var(--green);font-weight:600">${d.compras}</td>
-    <td class="num">${d.semPer}</td>
-    <td class="num">${d.perdidos}</td>
-    <td class="num" style="font-weight:600">${d.total}</td>
-    <td class="num" style="${d.compras===0||d.total/d.compras>5?'color:var(--red)':'color:var(--green)'}">${ratio}</td>
-    <td>${riskPill(d.total, d.compras)}</td>
-  </tr>`;
-}).join('');
-
-// Perdidos table
-const perdTable = desqPorAnuncio.filter(d=>d.perdidos>0).sort((a,b)=>b.perdidos-a.perdidos);
-const totPerd = perdTable.reduce((s,d)=>s+d.perdidos,0);
-document.getElementById('tPerdidos').innerHTML = perdTable.map((d,i)=>`<tr>
-  <td class="mono">${i+1}</td>
-  <td><span class="code">${d.cod}</span></td>
-  <td class="num" style="font-weight:600">${d.perdidos}</td>
-  <td class="num">${(d.perdidos/totPerd*100).toFixed(1)}%</td>
-  <td class="num" style="color:var(--green)">${d.compras||'—'}</td>
-  <td>${riskPill(d.perdidos, d.compras)}</td>
-</tr>`).join('');
-
-// Sem Perfil table
-const spTable = desqPorAnuncio.filter(d=>d.semPer>0).sort((a,b)=>b.semPer-a.semPer);
-const totSP = spTable.reduce((s,d)=>s+d.semPer,0);
-document.getElementById('tSemPer').innerHTML = spTable.map((d,i)=>`<tr>
-  <td class="mono">${i+1}</td>
-  <td><span class="code">${d.cod}</span></td>
-  <td class="num" style="font-weight:600">${d.semPer}</td>
-  <td class="num">${(d.semPer/totSP*100).toFixed(1)}%</td>
-  <td class="num" style="color:var(--green)">${d.compras||'—'}</td>
-  <td>${riskPill(d.semPer, d.compras)}</td>
-</tr>`).join('');
-
-function showTab(id, el){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  el.classList.add('active');
+    <td style="font-weight:500;max-width:150px">${String(r['Nome do contato']).substring(0,36)}</td>
+    <td class="mono">${r.telefone?r.telefone:'-'}</td>
+    <td style="font-size:11px;color:var(--txt2);max-width:160px">${r['e-mail']||'-'}</td>
+    <td><span class="code">${r.anuncio}</span></td>
+    <td><span class="pill pb">${r.lote}</span></td>
+    <td><span class="pill ${r.tipo==='Perdido'?'pr':'po'}">${r.tipo}</span></td>
+    <td class="mono">${r.data}</td>
+  </tr>`).join('');
 }
+
+function initLotes(){
+  const cfg=[
+    {id:'espera',lote:'Lista de Espera',kEl:'kEspera',cA:'cEA',cS:'cES',tId:'tE'},
+    {id:'lote1',lote:'Lote 1',kEl:'kLote1',cA:'cL1A',cS:'cL1S',tId:'tL1'},
+    {id:'pmax',lote:'Google Pmax',kEl:'kPmax',cA:null,cS:'cPT',tId:'tPmax'},
+    {id:'outro',lote:'Sem Lote',kEl:'kOutro',cA:'cOA',cS:'cOS',tId:'tO'},
+  ];
+  cfg.forEach(lc=>{
+    const d=RAW.filter(r=>r.lote===lc.lote);
+    const sp=d.filter(r=>r.tipo==='Sem Perfil').length;
+    const pd=d.filter(r=>r.tipo==='Perdido').length;
+    const byA=gb(d,'anuncio');
+    const topA=topN(byA,8);
+    const kEl=document.getElementById(lc.kEl);
+    if(kEl)kEl.innerHTML=`
+      <div class="kpi"><div class="klbl">Total</div><div class="kval" style="color:var(--red)">${d.length}</div></div>
+      <div class="kpi"><div class="klbl">Sem Perfil</div><div class="kval">${sp}</div></div>
+      <div class="kpi"><div class="klbl">Perdidos</div><div class="kval">${pd}</div></div>
+      <div class="kpi"><div class="klbl">Anúncios únicos</div><div class="kval">${Object.keys(byA).length}</div></div>`;
+    if(lc.cA)mc(lc.cA,{type:'bar',data:{labels:topA.map(d=>d[0]),datasets:[{label:'Desqualif.',data:topA.map(d=>d[1]),backgroundColor:C.orange,borderRadius:5}]},options:{...bo()}});
+    const spA=gb(d.filter(r=>r.tipo==='Sem Perfil'),'anuncio');
+    const pdA=gb(d.filter(r=>r.tipo==='Perdido'),'anuncio');
+    if(lc.lote==='Google Pmax'){
+      mc(lc.cS,{type:'doughnut',data:{labels:['Sem Perfil','Perdido'],datasets:[{data:[sp,pd],backgroundColor:[C.orange,C.red],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},padding:12}}}}});
+      const byD=gb(d,'data');const dates=Object.keys(byD).sort();
+      mc('cPTL',{type:'line',data:{labels:dates,datasets:[{label:'Pmax',data:dates.map(dt=>byD[dt]),borderColor:C.red,backgroundColor:'rgba(184,48,48,.08)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#eaeae4'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}}}}});
+      const susp=d.filter(r=>{const n=String(r['Nome do contato']).toLowerCase();return n.includes('teste')||n.includes('dasdas')||/^\d+$/.test(n.trim())||n.length<4||n.includes('vaiparafalencia')||n.includes('vaichupar');}); 
+      document.getElementById('pmxAlerts').innerHTML=susp.slice(0,8).map(r=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--red-s);border-radius:7px;border:1px solid #f0c0c0"><span style="font-size:16px">🚩</span><div><div style="font-size:12px;font-weight:600">${String(r['Nome do contato']).substring(0,60)}</div><div style="font-size:11px;color:var(--txt3)">${r['e-mail']} · ${r.data}</div></div></div>`).join('')||'<div style="font-size:13px;color:var(--txt3)">Nenhum alerta com filtros atuais.</div>';
+    } else {
+      mc(lc.cS,{type:'bar',data:{labels:topA.map(d=>d[0]),datasets:[{label:'Sem Perfil',data:topA.map(d=>spA[d[0]]||0),backgroundColor:C.orange,borderRadius:4,stack:'s'},{label:'Perdidos',data:topA.map(d=>pdA[d[0]]||0),backgroundColor:C.red,borderRadius:4,stack:'s'}]},options:{...bo(),plugins:{legend:{labels:{font:{family:'DM Sans',size:11}}}}}});
+    }
+    const tEl=document.getElementById(lc.tId);
+    if(tEl)tEl.innerHTML=lc.lote==='Google Pmax'?
+      d.map((r,i)=>`<tr><td class="mono">${i+1}</td><td style="font-weight:500;max-width:200px">${String(r['Nome do contato']).substring(0,45)}</td><td><span class="pill ${r.tipo==='Perdido'?'pr':'po'}">${r.tipo}</span></td><td class="mono">${r.data}</td><td style="font-size:11px;color:var(--txt2)">${r['e-mail']}</td></tr>`).join(''):
+      d.map((r,i)=>`<tr><td class="mono">${i+1}</td><td style="font-weight:500;max-width:150px">${String(r['Nome do contato']).substring(0,35)}</td><td><span class="code">${r.anuncio}</span></td><td><span class="pill ${r.tipo==='Perdido'?'pr':'po'}">${r.tipo}</span></td><td class="mono">${r.data}</td><td style="font-size:11px;color:var(--txt2);max-width:160px">${r['e-mail']}</td></tr>`).join('');
+  });
+}
+
+function sv(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nbtn,.mnbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  el.classList.add('active');
+  document.querySelectorAll('[onclick*="sv(\''+id+'\'"]').forEach(b=>b.classList.add('active'));
+}
+
+init();
 </script>
 </body>
 </html>
