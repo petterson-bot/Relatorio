@@ -3,65 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDA 2026 · Dashboard Completo · Perry Marketing</title>
+<title>SDA 2026 · Dashboard Montserrat · Perry Marketing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050A05;--c1:#0B130B;--c2:#111C11;--c3:#182818;--c4:#1F3A1F;--bd:#1A351A;--bd2:#256025;
---n:#4AE54A;--n2:#30B030;--n3:#1A7A1A;--ng:rgba(74,229,74,.12);
---r:#FF4444;--y:#FFD700;--o:#FF8C00;--b:#5BA8FF;--cy:#00E5CC;--p:#B57AFF;--pk:#FF6B9D;
---w:#FFFFFF;--t1:#C8D8C8;--t2:#88A088;--t3:#506850}
-
+:root{--bg:#050A05;--c1:#0B130B;--c2:#111C11;--c3:#182818;--bd:#1A351A;--n:#4AE54A;--r:#FF4444;--y:#FFD700;--b:#5BA8FF;--pk:#FF6B9D;--p:#B57AFF;--cy:#00E5CC;--w:#FFFFFF;--t2:#88A088;--t3:#506850}
 body{background:var(--bg);color:var(--w);font-family:'Montserrat', sans-serif;-webkit-font-smoothing:antialiased}
-
-/* HEADER */
 .hero{padding:28px 20px;text-align:center;background:linear-gradient(180deg,#0D1A0D,var(--bg));border-bottom:1px solid var(--bd);position:relative}
-.hero h1{font-size:clamp(20px,3vw,32px);font-weight:800;letter-spacing:1px;color:var(--accent);color:var(--n)}
-.hero .s{color:var(--t2);font-size:12px;margin-top:4px;font-weight:500}
-.hero .p{color:var(--y);font-weight:700;font-size:13px;margin-top:2px}
-
-/* BOTÃO DOWNLOAD */
-.btn-dl { position:absolute; top:20px; right:20px; background:transparent; border:1px solid var(--n); color:var(--n); padding:8px 15px; font-size:10px; font-weight:700; cursor:pointer; border-radius:4px; transition:0.3s; text-transform:uppercase}
-.btn-dl:hover { background:var(--n); color:var(--bg) }
-
+.hero h1{font-size:clamp(20px,3vw,32px);font-weight:800;color:var(--n);letter-spacing:1px}
+.btn-dl{position:absolute;top:20px;right:20px;background:transparent;border:1px solid var(--n);color:var(--n);padding:8px 15px;font-size:10px;font-weight:700;cursor:pointer;border-radius:4px;text-transform:uppercase}
+.btn-dl:hover{background:var(--n);color:var(--bg)}
 .W{max-width:1440px;margin:0 auto;padding:0 14px}
 .tabs{display:flex;gap:5px;padding:14px 0;flex-wrap:wrap;justify-content:center}
-.T{padding:8px 18px;border-radius:4px;background:var(--c1);border:1px solid var(--bd);color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap;text-transform:uppercase}
-.T:hover{border-color:var(--n3);color:var(--w)}.T.on{background:var(--n);color:var(--bg);border-color:var(--n)}
+.T{padding:8px 18px;border-radius:4px;background:var(--c1);border:1px solid var(--bd);color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase}
+.T.on{background:var(--n);color:var(--bg);border-color:var(--n)}
 .P{display:none}.P.on{display:block}
-
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:14px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
 .k{background:var(--c1);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center}
-.k .l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:3px;font-weight:700}
-.k .v{font-size:22px;font-weight:800}.k .v.g{color:var(--n)}.k .v.r{color:var(--r)}.k .v.y{color:var(--y)}.k .v.b{color:var(--b)}.k .v.c{color:var(--cy)}.k .v.p{color:var(--p)}.k .v.pk{color:var(--pk)}
-.k .ss{font-size:9px;color:var(--t3);margin-top:2px;font-weight:500}
-
+.k .l{font-size:9px;text-transform:uppercase;color:var(--t3);font-weight:700;margin-bottom:3px}
+.k .v{font-size:22px;font-weight:800}.k .v.g{color:var(--n)}.k .v.y{color:var(--y)}.k .v.pk{color:var(--pk)}
 .B{background:var(--c1);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:14px}
 .st{font-size:14px;font-weight:700;color:var(--n);padding-left:10px;border-left:3px solid var(--n);margin-bottom:12px;text-transform:uppercase}
-.cc{position:relative;height:320px;width:100%}.cc.lg{height:420px}
-
 .tw{overflow-x:auto; background:var(--c1); border-radius:8px; border:1px solid var(--bd)}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:var(--c2);color:var(--n);padding:10px 8px;text-align:left;font-weight:700;white-space:nowrap;border-bottom:2px solid var(--bd2);text-transform:uppercase;cursor:pointer}
-th:hover{background:var(--c3)}
+th{background:var(--c2);color:var(--n);padding:10px 8px;text-align:left;font-weight:700;text-transform:uppercase;cursor:pointer;border-bottom:2px solid var(--bd)}
 td{padding:8px 8px;border-bottom:1px solid var(--bd);white-space:nowrap;font-weight:500}
-tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.05)}
-
-.ins{background:var(--c1);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:10px;border-left:4px solid var(--n)}
-.ins .it{font-weight:800;font-size:13px;margin-bottom:3px;text-transform:uppercase}
-.ins .id{color:var(--t1);font-size:12px;line-height:1.5}
-
-@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.B,.k,.ins{animation:fu .35s ease both}
+tr:hover{background:rgba(74,229,74,.05)}
 </style>
 </head>
 <body>
 <header class="hero">
-  <button class="btn-dl" onclick="downloadHTML()">Baixar Relatório</button>
+  <button class="btn-dl" onclick="downloadHTML()">Baixar HTML</button>
   <h1>📊 SDA AO VIVO 2026 — PERFORMANCE</h1>
-  <div class="s">Perry Marketing Integrado · Samuel MKT · Dados API + Planilha</div>
-  <div class="p">📅 424 vendas reais · R$ 478.406 faturamento</div>
+  <div style="font-size:12px; color:var(--t2); margin-top:5px; font-weight:600">Perry Marketing Integrado · Dados Consolidados Montserrat</div>
 </header>
 
 <div class="W">
@@ -69,21 +44,20 @@ tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.05)}
     <div class="T on" onclick="go('vis')">Visão Geral</div>
     <div class="T" onclick="go('cam')">Campanhas</div>
     <div class="T" onclick="go('clo')">Closers</div>
-    <div class="T" onclick="go('act')">Ações</div>
   </div>
 
   <div class="P on" id="p-vis">
     <div class="kpis">
-      <div class="k"><div class="l">Investido</div><div class="v g">R$ 250.9K</div></div>
-      <div class="k"><div class="l">Faturamento</div><div class="v y">R$ 478.4K</div></div>
-      <div class="k"><div class="l">ROAS Geral</div><div class="v c">1.91x</div></div>
-      <div class="k"><div class="l">Vendas Comercial</div><div class="v pk">255</div></div>
+        <div class="k"><div class="l">Investido</div><div class="v g">R$ 250.9K</div></div>
+        <div class="k"><div class="l">Faturamento</div><div class="v y">R$ 478.4K</div></div>
+        <div class="k"><div class="l">ROAS Geral</div><div class="v" style="color:var(--cy)">1.91x</div></div>
+        <div class="k"><div class="l">Vendas Comercial</div><div class="v pk">255</div></div>
     </div>
-    <div class="B"><div class="st">Receita por Origem</div><div class="cc"><canvas id="c1"></canvas></div></div>
+    <div class="B"><div class="st">Receita por Origem</div><div class="cc" style="height:300px"><canvas id="c1"></canvas></div></div>
   </div>
 
   <div class="P" id="p-cam">
-    <div class="st">Campanhas Detalhadas (Clique para Ordenar)</div>
+    <div class="st">Todas as Campanhas (Clique para Ordenar)</div>
     <div class="tw">
       <table id="tblCamp">
         <thead>
@@ -96,14 +70,13 @@ tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.05)}
             <th onclick="sortTable(5, 'tblCamp')">ROAS</th>
           </tr>
         </thead>
-        <tbody id="tblBody">
-            </tbody>
+        <tbody id="tblBody"></tbody>
       </table>
     </div>
   </div>
 
   <div class="P" id="p-clo">
-    <div class="st">Performance por Closer</div>
+    <div class="st">Performance Closers</div>
     <div class="tw">
         <table id="tblClo">
             <thead>
@@ -113,19 +86,84 @@ tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.05)}
                 <th onclick="sortTable(2, 'tblClo')">Receita</th>
               </tr>
             </thead>
-            <tbody id="tblBodyClo">
-                </tbody>
+            <tbody id="tblBodyClo"></tbody>
         </table>
     </div>
   </div>
 </div>
 
 <script>
-// Mantive a lógica exata do seu arquivo original para não quebrar os dados
 const D=[
-  {n:'Quente ABO T02',s:'Qnt.T02',sp:28642.89,ld:617,rqty:0,rv:0},
-  {n:'Checkout Quente ABO',s:'CK.Qnt',sp:23206.76,ld:16,rqty:20,rv:22747},
-  {n:'Frio ABO T03',s:'Frio.T03',sp:14977.39,ld:786,rqty:3,rv:4938},
-  {n:'Advantage CBO T04',s:'Adv.T04',sp:9926.69,ld:24,rqty:8,rv:8476},
-  {n:'Lista Esp. Quente',s:'LE.Qnt',sp:939.35,ld:31,rqty:22,rv:20507}
+  {n:'Quente ABO T02',sp:28642.89,ld:617,rqty:0,rv:0},
+  {n:'Checkout Quente ABO',sp:23206.76,ld:16,rqty:20,rv:22747},
+  {n:'Frio ABO T03',sp:14977.39,ld:786,rqty:3,rv:4938},
+  {n:'Formulário Quente ABO',sp:11413.39,ld:773,rqty:1,rv:1547},
+  {n:'Advantage CBO T04',sp:9926.69,ld:24,rqty:8,rv:8476},
+  {n:'Visita Perfil',sp:7451.78,ld:0,rqty:0,rv:0},
+  {n:'WhatsApp Quente',sp:6484.80,ld:6,rqty:0,rv:0},
+  {n:'Frio ABO T06',sp:5021.18,ld:143,rqty:0,rv:0},
+  {n:'Adv. Lista T05',sp:3250.18,ld:3,rqty:3,rv:4791},
+  {n:'Form TesteCriativo',sp:3129.94,ld:445,rqty:1,rv:897},
+  {n:'CK Frio T03',sp:2900.32,ld:1,rqty:2,rv:1694},
+  {n:'Lead Quente MN001',sp:2496.01,ld:47,rqty:2,rv:2694},
+  {n:'Lista Esp. Frio',sp:1056.48,ld:60,rqty:0,rv:0},
+  {n:'Lista Esp. Quente',sp:939.35,ld:31,rqty:22,rv:20507},
+  {n:'Form Qualificação',sp:755.24,ld:151,rqty:0,rv:0}
 ];
+
+const CLO=[
+    {n:'Nathalia', v:36, r:50940}, {n:'Juliana', v:35, r:43535},
+    {n:'Jalai', v:32, r:43001}, {n:'Junior', v:34, r:41045},
+    {n:'WhatsOficial', v:48, r:51353}, {n:'ZeRoberto', v:28, r:19609},
+    {n:'IA', v:10, r:15417}, {n:'Lizandra', v:4, r:7994}
+];
+
+function go(id){
+    document.querySelectorAll('.P').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.T').forEach(t=>t.classList.remove('on'));
+    document.getElementById('p-'+id).classList.add('on');
+    event.target.classList.add('on');
+}
+
+function render(){
+    document.getElementById('tblBody').innerHTML = D.map(c => {
+        const roas = c.rv > 0 ? (c.rv/c.sp).toFixed(2)+'x' : '0.00x';
+        return `<tr><td>${c.n}</td><td>R$ ${Math.round(c.sp).toLocaleString()}</td><td>${c.ld}</td><td>${c.rqty}</td><td>R$ ${c.rv.toLocaleString()}</td><td style="color:var(--n)">${roas}</td></tr>`;
+    }).join('');
+    document.getElementById('tblBodyClo').innerHTML = CLO.sort((a,b)=>b.r-a.r).map(c => `<tr><td>${c.n}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td></tr>`).join('');
+}
+
+function sortTable(n, id) {
+    var table = document.getElementById(id), rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    switching = true; dir = "asc";
+    while (switching) {
+        switching = false; rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i+1].getElementsByTagName("TD")[n];
+            let vx = x.innerText.replace(/[R$\.x]/g, '').replace(',', '.').trim();
+            let vy = y.innerText.replace(/[R$\.x]/g, '').replace(',', '.').trim();
+            let v1 = isNaN(parseFloat(vx)) ? x.innerText.toLowerCase() : parseFloat(vx);
+            let v2 = isNaN(parseFloat(vy)) ? y.innerText.toLowerCase() : parseFloat(vy);
+            if (dir == "asc" ? v1 > v2 : v1 < v2) { shouldSwitch = true; break; }
+        }
+        if (shouldSwitch) { rows[i].parentNode.insertBefore(rows[i + 1], rows[i]); switching = true; switchcount ++; }
+        else if (switchcount == 0 && dir == "asc") { dir = "desc"; switching = true; }
+    }
+}
+
+function downloadHTML() {
+    const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'SDA_2026_Final.html';
+    a.click();
+}
+
+new Chart(document.getElementById('c1'),{type:'doughnut',data:{labels:['Comercial','Orgânico','Tráfego'],datasets:[{data:[302075,95921,78716],backgroundColor:[COLORS.pink, COLORS.purple, COLORS.blue],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#88A088',font:{family:'Montserrat'}}}}}});
+
+const COLORS = { pink: '#FF6B9D', purple: '#B57AFF', blue: '#5BA8FF' };
+render();
+</script>
+</body>
+</html>
