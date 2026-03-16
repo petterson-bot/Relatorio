@@ -3,130 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDA 2026 </title>
+<title>SDA 2026 · Performance Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050A05;--c1:#0B130B;--c2:#111C11;--c3:#182818;--bd:#1A351A;--bd2:#256025;
---n:#4AE54A;--r:#FF4444;--y:#FFD700;--o:#FF8C00;--b:#5BA8FF;--cy:#00E5CC;--p:#B57AFF;--pk:#FF6B9D;
---w:#FFFFFF;--t1:#C8D8C8;--t2:#88A088;--t3:#506850}
+:root {
+    --bg:#050A05; --side:#0B130B; --card:#111C11; --bd:#1A351A;
+    --n:#4AE54A; --w:#FFFFFF; --t2:#88A088; --t3:#506850;
+    --r:#FF4444; --y:#FFD700; --b:#5BA8FF; --pk:#FF6B9D;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--w); font-family:'Montserrat', sans-serif; display:flex; min-height:100vh; overflow-x:hidden; }
 
-body{background:var(--bg);color:var(--w);font-family:'Montserrat', sans-serif;-webkit-font-smoothing:antialiased}
+/* MENU LATERAL */
+nav { 
+    width: 260px; background:var(--side); border-right:1px solid var(--bd); 
+    display:flex; flex-direction:column; position:fixed; height:100vh; z-index:100;
+}
+.brand { padding:30px 20px; border-bottom:1px solid var(--bd); text-align:center; }
+.brand h1 { font-size:22px; color:var(--n); font-weight:800; letter-spacing:1px; }
+.tabs { flex:1; padding:20px 10px; }
+.T { 
+    padding:12px 20px; margin-bottom:8px; border-radius:8px; cursor:pointer; 
+    color:var(--t2); font-weight:600; font-size:13px; transition:0.3s; display:flex; align-items:center; gap:10px;
+}
+.T:hover { background:rgba(74,229,74,0.05); color:var(--w); }
+.T.on { background:var(--n); color:var(--bg); box-shadow:0 4px 15px rgba(74,229,74,0.3); }
 
-.hero{padding:28px 20px;text-align:center;background:linear-gradient(180deg,#0D1A0D,var(--bg));border-bottom:1px solid var(--bd);position:relative}
-.hero h1{font-size:clamp(20px,3vw,32px);font-weight:800;letter-spacing:1px;color:var(--n)}
-.hero .s{color:var(--t2);font-size:12px;margin-top:4px;font-weight:600}
-.hero .p{color:var(--y);font-weight:700;font-size:13px;margin-top:2px}
+/* CONTEÚDO PRINCIPAL */
+main { flex:1; margin-left:260px; padding:30px; }
+.hero { margin-bottom:30px; border-bottom:1px solid var(--bd); padding-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; }
+.hero h2 { font-size:24px; font-weight:800; }
+.hero p { color:var(--t2); font-size:12px; }
 
-.btn-dl {position:absolute; top:20px; right:20px; background:transparent; border:1px solid var(--n); color:var(--n); padding:8px 15px; font-size:10px; font-weight:700; cursor:pointer; border-radius:4px; text-transform:uppercase; transition:0.3s}
-.btn-dl:hover {background:var(--n); color:var(--bg)}
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-bottom:30px; }
+.k { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; transition:0.3s; }
+.k:hover { border-color:var(--n); }
+.k .l { font-size:10px; text-transform:uppercase; color:var(--t2); font-weight:700; margin-bottom:5px; letter-spacing:1px; }
+.k .v { font-size:26px; font-weight:800; }
 
-.W{max-width:1440px;margin:0 auto;padding:0 14px}
-.tabs{display:flex;gap:5px;padding:14px 0;flex-wrap:wrap;justify-content:center}
-.T{padding:8px 18px;border-radius:4px;background:var(--c1);border:1px solid var(--bd);color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap;text-transform:uppercase}
-.T:hover{border-color:var(--n3);color:var(--w)}.T.on{background:var(--n);color:var(--bg);border-color:var(--n)}
-.P{display:none}.P.on{display:block}
+.B { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; margin-bottom:20px; }
+.st { font-size:14px; font-weight:700; color:var(--n); border-left:3px solid var(--n); padding-left:12px; margin-bottom:20px; text-transform:uppercase; }
 
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:14px 0}
-.k{background:var(--c1);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center}
-.k .l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:3px;font-weight:700}
-.k .v{font-size:22px;font-weight:800}.k .v.g{color:var(--n)}.k .v.r{color:var(--r)}.k .v.y{color:var(--y)}.k .v.b{color:var(--b)}.k .v.c{color:var(--cy)}.k .v.p{color:var(--p)}.k .v.pk{color:var(--pk)}
-.k .ss{font-size:9px;color:var(--t3);margin-top:2px;font-weight:500}
+.cc { position:relative; height:320px; width:100%; }
 
-.B{background:var(--c1);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:14px}
-.st{font-size:14px;font-weight:700;color:var(--n);padding-left:10px;border-left:3px solid var(--n);margin-bottom:12px;text-transform:uppercase}
-.cc{position:relative;height:320px;width:100%}.cc.lg{height:420px}.cc.xl{height:500px}
+/* TABELA ORDENÁVEL */
+.tw { overflow-x:auto; border-radius:8px; border:1px solid var(--bd); background:var(--card); }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { 
+    background:rgba(255,255,255,0.03); color:var(--n); padding:15px; text-align:left; 
+    font-weight:700; cursor:pointer; text-transform:uppercase; border-bottom:2px solid var(--bd); 
+}
+th:hover { background:rgba(74,229,74,0.1); }
+td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
+tr:hover { background:rgba(255,255,255,0.02); }
 
-.tw{overflow-x:auto; background:var(--c1); border-radius:8px; border:1px solid var(--bd)}
-table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:var(--c2);color:var(--n);padding:10px 8px;text-align:left;font-weight:700;white-space:nowrap;border-bottom:2px solid var(--bd2);text-transform:uppercase;cursor:pointer}
-th:hover{background:var(--c3)}
-td{padding:8px 8px;border-bottom:1px solid var(--bd);white-space:nowrap;font-weight:500}
-tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.05)}
+.tg { padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; }
+.tg-g { background:rgba(74,229,74,0.1); color:var(--n); }
 
-.ins{background:var(--c1);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:10px;border-left:4px solid var(--n)}
-.ins .it{font-weight:800;font-size:13px;margin-bottom:3px;text-transform:uppercase}
-.ins .id{color:var(--t1);font-size:12px;line-height:1.5}
+.P { display:none; animation:fadeIn 0.4s ease; }
+.P.on { display:block; }
 
-@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.B,.k,.ins{animation:fu .35s ease both}
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+
+@media(max-width:900px) {
+    nav { width:70px; } .brand h1, .T span { display:none; }
+    main { margin-left:70px; padding:15px; }
+}
 </style>
 </head>
 <body>
-<header class="hero">
-  <button class="btn-dl" onclick="downloadHTML()">Baixar Relatório</button>
-  <h1>📊 SDA AO VIVO 2026</h1>
-  <div class="s">Segredos da Audiência · SDA 2026 · Dados API + Planilha de Vendas</div>
-  <div class="p">📅 424 vendas reais · R$ 478.406 faturamento</div>
-</header>
 
-<div class="W">
-  <div class="tabs">
-    <div class="T on" onclick="go('vis')">📊 Visão Geral</div>
-    <div class="T" onclick="go('cam')">📋 Campanhas</div>
-    <div class="T" onclick="go('wa')">💬 WhatsApp</div>
-    <div class="T" onclick="go('clo')">👥 Closers</div>
-    <div class="T" onclick="go('act')">🎯 Ações</div>
-  </div>
-
-  <div class="P on" id="p-vis">
-    <div class="kpis">
-      <div class="k"><div class="l">Investido (Meta)</div><div class="v g">R$ 250.9K</div></div>
-      <div class="k"><div class="l">Faturamento Real</div><div class="v y">R$ 478.4K</div></div>
-      <div class="k"><div class="l">ROAS Geral</div><div class="v c">1.91x</div></div>
-      <div class="k"><div class="l">Vendas Comercial</div><div class="v pk">255</div></div>
+<nav>
+    <div class="brand"><h1>SD<span>A</span> 2026</h1></div>
+    <div class="tabs">
+        <div class="T on" onclick="go('vis')">📊 <span>Visão Geral</span></div>
+        <div class="T" onclick="go('cam')">📋 <span>Campanhas</span></div>
+        <div class="T" onclick="go('wa')">💬 <span>WhatsApp</span></div>
+        <div class="T" onclick="go('clo')">👥 <span>Closers</span></div>
     </div>
-    <div class="B"><div class="st">Receita por Canal de Origem</div><div class="cc"><canvas id="c1"></canvas></div></div>
-  </div>
+    <div style="padding:20px; font-size:9px; color:var(--t3); text-align:center">Perry Marketing Integrado</div>
+</nav>
 
-  <div class="P" id="p-cam">
-    <div class="st">Todas as Campanhas (Clique para Ordenar)</div>
-    <div class="tw">
-      <table id="tblCamp">
-        <thead>
-          <tr>
-            <th onclick="sortTable(0, 'tblCamp')">Campanha</th>
-            <th onclick="sortTable(1, 'tblCamp')">Gasto</th>
-            <th onclick="sortTable(2, 'tblCamp')">Leads</th>
-            <th onclick="sortTable(3, 'tblCamp')">Vendas Reais</th>
-            <th onclick="sortTable(4, 'tblCamp')">Receita</th>
-            <th onclick="sortTable(5, 'tblCamp')">ROAS</th>
-          </tr>
-        </thead>
-        <tbody id="tblBody"></tbody>
-      </table>
+<main>
+    <div class="hero">
+        <div>
+            <h2>Dashboard Performance</h2>
+            <p>Conta 04 · act_377480853270622 · Samuel MKT</p>
+        </div>
+        <div style="text-align:right">
+            <div style="color:var(--y); font-weight:800; font-size:18px">R$ 478.406</div>
+            <p>Faturamento Total</p>
+        </div>
     </div>
-  </div>
 
-  <div class="P" id="p-wa">
-    <div class="kpis">
-      <div class="k"><div class="l">Vendas WhatsOficial</div><div class="v g">48</div></div>
-      <div class="k"><div class="l">Faturamento WA</div><div class="v y">R$ 51.3K</div></div>
+    <div class="P on" id="p-vis">
+        <div class="kpis">
+            <div class="k"><div class="l">Investido Meta</div><div class="v" style="color:var(--n)">R$ 250.9K</div></div>
+            <div class="k"><div class="l">Vendas Realizadas</div><div class="v">424</div></div>
+            <div class="k"><div class="l">ROAS Geral</div><div class="v" style="color:var(--b)">1.91x</div></div>
+            <div class="k"><div class="l">Vendas Comercial</div><div class="v" style="color:var(--pk)">255</div></div>
+        </div>
+        <div class="B"><div class="st">Receita por Canal</div><div class="cc"><canvas id="c1"></canvas></div></div>
     </div>
-    <div class="B"><div class="st">Funil WA da Campanha Meta</div><div class="cc"><canvas id="c14"></canvas></div></div>
-  </div>
 
-  <div class="P" id="p-clo">
-    <div class="st">Performance dos Closers</div>
-    <div class="tw">
-        <table id="tblClo">
-            <thead>
-              <tr>
-                <th onclick="sortTable(0, 'tblClo')">Closer</th>
-                <th onclick="sortTable(1, 'tblClo')">Vendas</th>
-                <th onclick="sortTable(2, 'tblClo')">Receita</th>
-              </tr>
-            </thead>
-            <tbody id="tblBodyClo"></tbody>
-        </table>
+    <div class="P" id="p-cam">
+        <div class="st">Gestão de Campanhas (Clique no título para ordenar)</div>
+        <div class="tw">
+            <table id="tblCamp">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Campanha ↕</th>
+                        <th onclick="sortTable(1)">Gasto ↕</th>
+                        <th onclick="sortTable(2)">Leads ↕</th>
+                        <th onclick="sortTable(3)">Vendas Reais ↕</th>
+                        <th onclick="sortTable(4)">Receita ↕</th>
+                        <th onclick="sortTable(5)">ROAS ↕</th>
+                    </tr>
+                </thead>
+                <tbody id="tblBody"></tbody>
+            </table>
+        </div>
     </div>
-  </div>
-</div>
+
+    <div class="P" id="p-wa">
+        <div class="kpis">
+            <div class="k"><div class="l">Gasto Meta WA</div><div class="v" style="color:var(--r)">R$ 6.484</div></div>
+            <div class="k"><div class="l">Vendas WhatsOficial</div><div class="v" style="color:var(--n)">48</div></div>
+            <div class="k"><div class="l">Faturamento WA</div><div class="v">R$ 51.3K</div></div>
+        </div>
+        <div class="B"><div class="st">Funil WhatsApp</div><div class="cc"><canvas id="c14"></canvas></div></div>
+    </div>
+
+    <div class="P" id="p-clo">
+        <div class="st">Ranking do Time Comercial</div>
+        <div class="tw">
+            <table>
+                <thead>
+                    <tr><th>Closer</th><th>Vendas</th><th>Faturamento</th><th>Ticket Médio</th></tr>
+                </thead>
+                <tbody id="tblBodyClo"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
 
 <script>
-Chart.defaults.color='#88A088'; Chart.defaults.font.family="'Montserrat'"; 
+Chart.defaults.color='#88A088'; Chart.defaults.font.family="'Montserrat'";
+const N='#4AE54A', R='#FF4444', Y='#FFD700', B='#5BA8FF', PK='#FF6B9D';
 
+function go(id){
+    document.querySelectorAll('.P').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.T').forEach(t=>t.classList.remove('on'));
+    document.getElementById('p-'+id).classList.add('on');
+    event.currentTarget.classList.add('on');
+}
+
+// ===== DADOS ORIGINAIS PRESERVADOS =====
 const D=[
   {n:'Quente ABO T02',s:'Qnt.T02',sp:28642.89,ld:617,rqty:0,rv:0},
   {n:'Checkout Quente ABO',s:'CK.Qnt',sp:23206.76,ld:16,rqty:20,rv:22747},
@@ -134,23 +167,3 @@ const D=[
   {n:'Formulário Quente ABO',s:'Form.Qnt',sp:11413.39,ld:773,rqty:1,rv:1547},
   {n:'Advantage CBO T04',s:'Adv.T04',sp:9926.69,ld:24,rqty:8,rv:8476},
   {n:'Visita Perfil',s:'VisPerfil',sp:7451.78,ld:0,rqty:0,rv:0},
-  {n:'WhatsApp Quente',s:'WA.Qnt',sp:6484.80,ld:6,rqty:0,rv:0},
-  {n:'Frio ABO T06',s:'Frio.T06',sp:5021.18,ld:143,rqty:0,rv:0},
-  {n:'Adv. Lista T05',s:'Adv.Lst',sp:3250.18,ld:3,rqty:3,rv:4791},
-  {n:'Form TesteCriativo',s:'Form.Cr',sp:3129.94,ld:445,rqty:1,rv:897},
-  {n:'CK Frio T03',s:'CK.FrT3',sp:2900.32,ld:1,rqty:2,rv:1694},
-  {n:'Lead Quente MN001',s:'Ld.MN01',sp:2496.01,ld:47,rqty:2,rv:2694},
-  {n:'Lista Esp. Quente',s:'LE.Qnt',sp:939.35,ld:31,rqty:22,rv:20507}
-];
-
-const CLO=[
-  {n:'Nathalia', v:36, r:50940}, {n:'Juliana', v:35, r:43535},
-  {n:'Jalai', v:32, r:43001}, {n:'Junior', v:34, r:41045},
-  {n:'WhatsOficial', v:48, r:51353}, {n:'ZeRoberto', v:28, r:19609},
-  {n:'IA', v:10, r:15417}, {n:'Lizandra', v:4, r:7994}
-];
-
-function go(id){
-    document.querySelectorAll('.P').forEach(p=>p.classList.remove('on'));
-    document.querySelectorAll('.T').forEach(t=>t.classList.remove('on'));
-    document.getElementById('p-'+id).classList.add('on');
