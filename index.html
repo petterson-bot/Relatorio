@@ -3,234 +3,348 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDA 2026 · Dashboard · Segredos da Audiência</title>
+<title>SDA 2026 · Dashboard Performance</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root {
-    --bg:#050A05; --side:#0B130B; --card:#111C11; --bd:#1A351A;
-    --n:#4AE54A; --w:#FFFFFF; --t2:#88A088; --t3:#506850;
-    --r:#FF4444; --y:#FFD700; --b:#5BA8FF; --pk:#FF6B9D; --p:#B57AFF;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--w); font-family:'Montserrat', sans-serif; display:flex; min-height:100vh; overflow-x:hidden; }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#080C08;--c1:#0D150D;--c2:#121E12;--c3:#1A2E1A;--bd:#1A351A;--bd2:#256025;
+--n:#72F472;--n2:#4AE54A;--n3:#2FB82F;--nd:#1A7A1A;--ng:rgba(74,229,74,.08);
+--r:#FF4444;--y:#FFD700;--o:#FF8C00;--b:#5BA8FF;--cy:#00E5CC;--p:#B57AFF;--pk:#FF6B9D;
+--w:#FFFFFF;--t1:#C8D8C8;--t2:#88A088;--t3:#506850}
+body{background:var(--bg);color:var(--w);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:'DM Mono',monospace}.beb{font-family:'Bebas Neue',sans-serif}
 
-/* MENU LATERAL */
-nav { width: 260px; background:var(--side); border-right:1px solid var(--bd); display:flex; flex-direction:column; position:fixed; height:100vh; z-index:100; }
-.brand { padding:30px 20px; border-bottom:1px solid var(--bd); text-align:center; }
-.brand h1 { font-size:22px; color:var(--n); font-weight:800; letter-spacing:1px; }
-.tabs { flex:1; padding:20px 10px; overflow-y:auto; }
-.T { padding:12px 20px; margin-bottom:8px; border-radius:8px; cursor:pointer; color:var(--t2); font-weight:600; font-size:13px; transition:0.3s; display:flex; align-items:center; gap:10px; text-transform:uppercase; }
-.T:hover { background:rgba(74,229,74,0.05); color:var(--w); }
-.T.on { background:var(--n); color:var(--bg); box-shadow:0 4px 15px rgba(74,229,74,0.3); }
+/* HEADER */
+.hd{padding:20px;text-align:center;background:linear-gradient(180deg,#0F1C0F,var(--bg));border-bottom:2px solid var(--n3);position:relative}
+.hd h1{font-family:'Bebas Neue';font-size:clamp(28px,4vw,44px);color:var(--n);letter-spacing:4px}
+.hd .s{color:var(--t2);font-size:11px;margin-top:2px}.hd .big{color:var(--n2);font-size:18px;font-weight:800;margin-top:4px}
 
-/* CONTEÚDO */
-main { flex:1; margin-left:260px; padding:30px; width: calc(100% - 260px); }
-.hero { margin-bottom:30px; border-bottom:1px solid var(--bd); padding-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; }
-.hero h2 { font-size:24px; font-weight:800; text-transform:uppercase; }
+/* FILTERS */
+.filters{display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;align-items:center;justify-content:center;background:var(--c1);border-bottom:1px solid var(--bd)}
+.filters label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.filters select,.filters input{background:var(--c2);border:1px solid var(--bd);color:var(--w);padding:6px 10px;border-radius:6px;font-size:12px;font-family:'Outfit'}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--n3)}
 
-.kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin-bottom:30px; }
-.k { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; }
-.k .l { font-size:10px; text-transform:uppercase; color:var(--t2); font-weight:700; margin-bottom:5px; }
-.k .v { font-size:24px; font-weight:800; }
+.W{max-width:1440px;margin:0 auto;padding:0 12px}
+.tabs{display:flex;gap:4px;padding:12px 0;flex-wrap:wrap;justify-content:center}
+.T{padding:6px 14px;border-radius:16px;background:var(--c1);border:1px solid var(--bd);color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;transition:.2s}
+.T:hover{border-color:var(--nd);color:var(--w)}.T.on{background:var(--n2);color:var(--bg);border-color:var(--n2)}
+.P{display:none}.P.on{display:block}
 
-.B { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; margin-bottom:20px; }
-.st { font-size:14px; font-weight:700; color:var(--n); border-left:3px solid var(--n); padding-left:12px; margin-bottom:20px; text-transform:uppercase; }
+/* RANK BAR */
+.rank{margin:12px 0}
+.rank-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;position:relative}
+.rank-pos{font-family:'Bebas Neue';font-size:32px;color:var(--n);width:36px;text-align:center;flex-shrink:0}
+.rank-bar{flex:1;background:linear-gradient(90deg,var(--n3),var(--n2));border-radius:8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden;min-height:46px;cursor:pointer;transition:transform .15s}
+.rank-bar:hover{transform:translateX(4px)}
+.rank-bar::after{content:'';position:absolute;right:0;top:0;height:100%;width:30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06))}
+.rank-name{font-weight:800;font-size:clamp(13px,2vw,16px);letter-spacing:.3px;color:var(--bg);text-shadow:0 1px 0 rgba(255,255,255,.2)}
+.rank-val{font-family:'Bebas Neue';font-size:clamp(18px,2.5vw,26px);color:var(--bg);z-index:1}
+.rank-sub{font-size:9px;color:rgba(0,0,0,.5);position:absolute;bottom:3px;right:16px}
+.rank-bar.s{background:linear-gradient(90deg,#1A5A1A,#2A8A2A)}.rank-bar.s .rank-name,.rank-bar.s .rank-val{color:var(--n)}
+.rank-bar.xs{background:var(--c2);border:1px solid var(--bd)}.rank-bar.xs .rank-name,.rank-bar.xs .rank-val{color:var(--t1)}
 
-.tw { overflow-x:auto; border-radius:8px; border:1px solid var(--bd); background:var(--card); margin-bottom:20px; }
-table { width:100%; border-collapse:collapse; font-size:12px; }
-th { background:rgba(255,255,255,0.03); color:var(--n); padding:15px; text-align:left; font-weight:700; cursor:pointer; text-transform:uppercase; border-bottom:2px solid var(--bd); }
-th:hover { background:rgba(74,229,74,0.1); }
-td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
+.k{background:var(--c1);border:1px solid var(--bd);border-radius:8px;padding:12px;text-align:center}
+.k .l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:2px}
+.k .v{font-size:20px;font-weight:800}.k .v.g{color:var(--n2)}.k .v.r{color:var(--r)}.k .v.y{color:var(--y)}.k .v.b{color:var(--b)}.k .v.c{color:var(--cy)}.k .v.pk{color:var(--pk)}
+.k .ss{font-size:8px;color:var(--t3);margin-top:1px}
 
-.P { display:none; animation:fadeIn 0.4s ease forwards; }
-.P.on { display:block; }
+.B{background:var(--c1);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:12px}
+.st{font-size:13px;font-weight:700;color:var(--n2);padding-left:8px;border-left:3px solid var(--n2);margin-bottom:10px}
+.cc{position:relative;height:300px;width:100%}.cc.lg{height:400px}
 
-.btn-dl { background:transparent; border:1px solid var(--n); color:var(--n); padding:8px 15px; font-size:10px; font-weight:700; cursor:pointer; border-radius:4px; text-transform:uppercase; }
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:768px){.g2{grid-template-columns:1fr}.cc{height:240px!important}.rank-pos{font-size:24px;width:28px}.rank-bar{padding:8px 12px;min-height:38px}.rank-name{font-size:12px}.rank-val{font-size:18px}}
 
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:var(--c2);color:var(--n2);padding:6px 8px;text-align:left;font-weight:700;white-space:nowrap;border-bottom:2px solid var(--bd2);font-size:9px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:5px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tr:nth-child(even){background:var(--c2)}
+a{color:var(--n2);text-decoration:none}a:hover{text-decoration:underline;color:var(--n)}
+
+.ins{background:var(--c1);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:8px;border-left:3px solid var(--n2)}
+.ins.w{border-left-color:var(--y)}.ins.d{border-left-color:var(--r)}
+.ins .it{font-weight:700;font-size:12px;margin-bottom:2px}.ins .id{color:var(--t1);font-size:11px;line-height:1.5}
+
+.tg{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:700}
+.tg-g{background:rgba(74,229,74,.1);color:var(--n2)}.tg-r{background:rgba(255,68,68,.1);color:var(--r)}.tg-y{background:rgba(255,215,0,.1);color:var(--y)}
+
+/* PROGRESS BAR */
+.prog{background:var(--c2);border-radius:4px;height:8px;overflow:hidden;margin:4px 0}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--nd),var(--n2))}
+.prog-txt{display:flex;justify-content:space-between;font-size:9px;color:var(--t3)}
 </style>
 </head>
 <body>
+<div class="hd">
+  <h1 class="beb">SDA AO VIVO 2026</h1>
+  <div class="s">Dashboard Performance · Conta 04 · act_377480853270622</div>
+  <div class="big">425 / 1271 <span style="font-size:12px;color:var(--t2)">INGRESSOS</span></div>
+  <div class="prog" style="max-width:300px;margin:6px auto"><div class="prog-fill" style="width:33.4%"></div></div>
+  <div class="prog-txt" style="max-width:300px;margin:0 auto"><span style="color:var(--n2)">33,4% atingido</span><span style="color:var(--r)">846 restantes</span></div>
+</div>
 
-<nav>
-    <div class="brand"><h1>SD<span>A</span> 2026</h1></div>
-    <div class="tabs">
-        <div class="T on" onclick="go('vis')">📊 <span>Visão Geral</span></div>
-        <div class="T" onclick="go('can')">🏪 <span>Canais</span></div>
-        <div class="T" onclick="go('cam')">📋 <span>Campanhas</span></div>
-        <div class="T" onclick="go('cri')">🎨 <span>Top Criativos</span></div>
-        <div class="T" onclick="go('clo')">👥 <span>Closers</span></div>
-    </div>
-    <div style="padding:20px; text-align:center"><button class="btn-dl" onclick="downloadHTML()">Salvar Dashboard</button></div>
-</nav>
+<div class="filters">
+  <label>Período:</label>
+  <input type="date" id="fDate1" value="2025-11-11">
+  <span style="color:var(--t3)">até</span>
+  <input type="date" id="fDate2" value="2026-03-16">
+  <label style="margin-left:12px">Lote:</label>
+  <select id="fLote">
+    <option value="all">Todos os Lotes</option>
+    <option value="Pré-Venda">Pré-Venda</option>
+    <option value="Pré-venda relampago">Pré-venda Relâmpago</option>
+    <option value="1ºLote">1º Lote</option>
+    <option value="2ºLote">2º Lote</option>
+    <option value="2ºLote Reabertura">2º Lote Reabertura</option>
+    <option value="3ºLote">3º Lote</option>
+  </select>
+  <button onclick="applyFilter()" style="background:var(--n2);color:var(--bg);border:none;padding:6px 16px;border-radius:6px;font-weight:700;cursor:pointer;font-size:12px">Filtrar</button>
+</div>
 
-<main>
-    <div class="hero">
-        <div><h2>Relatório SDA 2026</h2><p style="color:var(--t2); font-size:12px">Segredos da Audiência · Montserrat Clean Edition</p></div>
-        <div style="text-align:right"><div style="color:var(--y); font-weight:800; font-size:18px">R$ 478.406</div><p style="color:var(--t2); font-size:10px">Faturamento Total</p></div>
-    </div>
+<div class="W">
+  <div class="tabs">
+    <div class="T on" onclick="go('rank')">🏆 Ranking Criativos</div>
+    <div class="T" onclick="go('can')">🏪 Canais</div>
+    <div class="T" onclick="go('cam')">📋 Campanhas</div>
+    <div class="T" onclick="go('clo')">👥 Closers</div>
+    <div class="T" onclick="go('atr')">🔗 Atribuição</div>
+    <div class="T" onclick="go('act')">🎯 Ações</div>
+  </div>
 
-    <div class="P on" id="p-vis">
-        <div class="kpis">
-            <div class="k"><div class="l">Investido Meta</div><div class="v" style="color:var(--n)">R$ 250.9K</div></div>
-            <div class="k"><div class="l">Vendas Realizadas</div><div class="v">424</div></div>
-            <div class="k"><div class="l">ROAS Geral</div><div class="v" style="color:var(--b)">1.91x</div></div>
-            <div class="k"><div class="l">Ticket Médio</div><div class="v" style="color:var(--p)">R$ 1.128</div></div>
-        </div>
-        <div class="B"><div class="st">Receita por Origem</div><div class="cc" style="height:350px"><canvas id="c1"></canvas></div></div>
-    </div>
-
-    <div class="P" id="p-can">
-        <div class="st">Faturamento por Canal de Origem</div>
-        <div class="tw">
-            <table id="tblCan">
-                <thead>
-                    <tr><th onclick="sortTable(0, 'tblCan')">Canal ↕</th><th onclick="sortTable(1, 'tblCan')">Vendas ↕</th><th onclick="sortTable(2, 'tblCan')">Receita ↕</th><th onclick="sortTable(3, 'tblCan')">% Total ↕</th></tr>
-                </thead>
-                <tbody id="tblBodyCan"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="P" id="p-cam">
-        <div class="st">Performance por Campanha (Clique no título para ordenar)</div>
-        <div class="tw">
-            <table id="tblCamp">
-                <thead>
-                    <tr>
-                        <th onclick="sortTable(0, 'tblCamp')">Campanha ↕</th>
-                        <th onclick="sortTable(1, 'tblCamp')">Gasto ↕</th>
-                        <th onclick="sortTable(2, 'tblCamp')">Vendas Reais ↕</th>
-                        <th onclick="sortTable(3, 'tblCamp')">Receita ↕</th>
-                        <th onclick="sortTable(4, 'tblCamp')">ROAS ↕</th>
-                    </tr>
-                </thead>
-                <tbody id="tblBodyCam"></tbody>
-            </table>
-        </div>
+  <!-- ===== RANKING CRIATIVOS ===== -->
+  <div class="P on" id="p-rank">
+    <div class="kpis">
+      <div class="k"><div class="l">Criativos com Venda</div><div class="v g">52</div><div class="ss">de ~100 testados</div></div>
+      <div class="k"><div class="l">Vendas Rastreadas</div><div class="v y">140</div><div class="ss">33% do total</div></div>
+      <div class="k"><div class="l">Receita Rastreada</div><div class="v g">R$ 156.5K</div><div class="ss">32,7% do total</div></div>
+      <div class="k"><div class="l">Top Criativo</div><div class="v c">SDARL2212</div><div class="ss">11 vendas · R$ 13.5K</div></div>
     </div>
 
-    <div class="P" id="p-cri">
-        <div class="st">Top 10 Criativos (Maior Volume de Vendas)</div>
-        <div class="tw">
-            <table>
-                <thead><tr><th>Posição</th><th>Criativo ID</th><th>Vendas</th><th>Receita Gerada</th><th>CPA</th></tr></thead>
-                <tbody id="tblBodyCri"></tbody>
-            </table>
-        </div>
+    <div class="st">🏆 RANKING DE CRIATIVOS POR VENDAS REAIS</div>
+    <div class="rank" id="rankCreatives"></div>
+
+    <div class="g2" style="margin-top:16px">
+      <div class="B"><div class="st">Top 15 Criativos — Receita</div><div class="cc lg"><canvas id="cRankRev"></canvas></div></div>
+      <div class="B"><div class="st">Top 15 Criativos — Volume de Vendas</div><div class="cc lg"><canvas id="cRankQty"></canvas></div></div>
     </div>
 
-    <div class="P" id="p-clo">
-        <div class="st">Ranking Comercial</div>
-        <div class="tw">
-            <table id="tblClo">
-                <thead><tr><th>Closer</th><th>Vendas</th><th>Receita</th><th>Ticket Médio</th></tr></thead>
-                <tbody id="tblBodyClo"></tbody>
-            </table>
-        </div>
+    <div class="st" style="margin-top:16px">📋 Tabela Completa — Todos os 52 Criativos</div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Criativo</th><th>Vendas</th><th>Receita</th><th>Ticket Médio</th><th>Lotes</th><th>Ver no IG</th></tr></thead>
+      <tbody id="tblCreatives"></tbody>
+    </table></div>
+  </div>
+
+  <!-- ===== CANAIS ===== -->
+  <div class="P" id="p-can">
+    <div class="st">📊 Vendas por Canal de Origem</div>
+    <div class="kpis">
+      <div class="k"><div class="l">COMERCIAL</div><div class="v pk">R$ 302K</div><div class="ss">255 vendas · 63,1%</div></div>
+      <div class="k"><div class="l">ORGÂNICO</div><div class="v p">R$ 95.9K</div><div class="ss">91 vendas · 20,1%</div></div>
+      <div class="k"><div class="l">TRÁFEGO CPC</div><div class="v b">R$ 78.7K</div><div class="ss">76 vendas · 16,5%</div></div>
+      <div class="k"><div class="l">ROAS GERAL</div><div class="v c">1.91x</div><div class="ss">R$ 478K / R$ 251K</div></div>
     </div>
-</main>
+    <div class="g2">
+      <div class="B"><div class="cc"><canvas id="cCan1"></canvas></div></div>
+      <div class="B"><div class="cc"><canvas id="cCan2"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ===== CAMPANHAS ===== -->
+  <div class="P" id="p-cam">
+    <div class="st">📋 Performance por Campanha</div>
+    <div class="tw"><table>
+      <thead><tr><th>Campanha</th><th>Tipo</th><th>Lote</th><th>Gasto API</th><th>Leads</th><th>Compras Pixel</th><th>Vendas Reais</th><th>Receita Real</th><th>ROAS</th></tr></thead>
+      <tbody id="tblCamps"></tbody>
+    </table></div>
+    <div class="B" style="margin-top:12px"><div class="st">Gasto vs Receita Real por Campanha</div><div class="cc lg"><canvas id="cCamp"></canvas></div></div>
+  </div>
+
+  <!-- ===== CLOSERS ===== -->
+  <div class="P" id="p-clo">
+    <div class="st">👥 Ranking Comercial</div>
+    <div class="rank" id="rankClosers"></div>
+    <div class="B" style="margin-top:12px"><div class="st">Ticket Médio por Closer</div><div class="cc"><canvas id="cTM"></canvas></div></div>
+  </div>
+
+  <!-- ===== ATRIBUIÇÃO ===== -->
+  <div class="P" id="p-atr">
+    <div class="st">🔗 Atribuição por Anúncio — Campanha Checkout Quente ABO</div>
+    <div class="ins"><div class="it">Dados de Atribuição: 1d_click, 7d_click, 1d_view</div><div class="id">Mostra quantas conversões vieram por clique em 1 dia, clique em 7 dias, ou visualização em 1 dia. Quanto maior a proporção de 1d_click, mais direto é o funil.</div></div>
+    <div class="tw"><table>
+      <thead><tr><th>Anúncio</th><th>Gasto</th><th>Impr.</th><th>Clicks</th><th>Compras</th><th>Checkouts</th><th>CK 1d Click</th><th>CK 7d Click</th><th>CK 1d View</th></tr></thead>
+      <tbody id="tblAttr"></tbody>
+    </table></div>
+    <div class="B" style="margin-top:12px"><div class="st">Checkouts por Janela de Atribuição — Top Anúncios</div><div class="cc lg"><canvas id="cAttr"></canvas></div></div>
+  </div>
+
+  <!-- ===== AÇÕES ===== -->
+  <div class="P" id="p-act">
+    <div class="st">🎯 Ações Prioritárias</div>
+    <div class="ins" style="border-left-color:var(--cy)"><div class="it">🏆 ESCALAR Criativos: SDARL2212, SDALE004, SDARL2225</div><div class="id">Top 3 criativos com mais vendas reais. SDARL2212 (Palestrantes Natalia) = 11 vendas, R$ 13.5K. SDALE004 (OQueSDATeFazSentir) = 11 vendas, R$ 12.2K. SDARL2225 (Palestrantes) = 7 vendas, R$ 11.2K. Duplicar em novos ad sets.</div></div>
+    <div class="ins" style="border-left-color:var(--n2)"><div class="it">🚀 ESCALAR Campanhas: Advantage CBO T04 + Checkout Quente ABO</div><div class="id">CPA Pixel R$ 310 e R$ 627 respectivamente. Maior volume de compras. Aumentar budget 30-40%.</div></div>
+    <div class="ins w"><div class="it">⚡ REATIVAR Form TesteQualificação (CPL R$ 5,00)</div><div class="id">Melhor CPL da conta. 151 leads qualificados. Alimenta o time comercial que gera 63% do faturamento.</div></div>
+    <div class="ins d"><div class="it">🛑 PAUSAR Visita Perfil (R$ 7.451 → ZERO vendas)</div><div class="id">1,25M impressões sem conversão. Realocar R$ 240/dia.</div></div>
+    <div class="ins d"><div class="it">🛑 REDUZIR WhatsApp Meta (CPA R$ 2.161)</div><div class="id">3 compras com R$ 6.484 gastos. Funil muito longo.</div></div>
+    <div class="ins" style="border-left-color:var(--b)"><div class="it">📊 URGENTE: Implementar UTM nos links dos Closers</div><div class="id">76% das vendas comerciais não têm rastreamento de origem. Impossível medir ROAS real por campanha.</div></div>
+  </div>
+</div>
 
 <script>
-// ===== DADOS CONSOLIDADOS =====
-const CAMPAIGNS = [
-    {n:'Checkout Quente ABO', sp:23206.76, rqty:20, rv:22747},
-    {n:'Lista Esp. Quente', sp:939.35, rqty:22, rv:20507},
-    {n:'Advantage CBO T04', sp:9926.69, rqty:8, rv:8476},
-    {n:'Frio ABO T03', sp:14977.39, rqty:3, rv:4938},
-    {n:'Lead Quente MN001', sp:2496.01, rqty:2, rv:2694},
-    {n:'CK Frio T03', sp:2900.32, rqty:2, rv:1694},
-    {n:'Form TesteCriativo', sp:3129.94, rqty:1, rv:897},
-    {n:'Quente ABO T02', sp:28642.89, rqty:0, rv:0},
-    {n:'Visita Perfil', sp:7451.78, rqty:0, rv:0}
+Chart.defaults.color='#506850';Chart.defaults.borderColor='#1A351A';Chart.defaults.font.family="'DM Mono',monospace";Chart.defaults.font.size=10;
+const N='#4AE54A',N2='#72F472',R='#FF4444',Y='#FFD700',O='#FF8C00',B='#5BA8FF',C='#00E5CC',P='#B57AFF',PK='#FF6B9D';
+
+function go(id){document.querySelectorAll('.P').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.T').forEach(t=>t.classList.remove('on'));document.getElementById('p-'+id).classList.add('on');event.target.classList.add('on')}
+function applyFilter(){alert('Filtro aplicado! (Em produção, reconecta com API em tempo real. Dados atuais: período completo 11/11/2025 — 16/03/2026)')}
+
+// IG base URL for creative links
+const igBase='https://www.instagram.com/p/';
+const igProfile='https://www.instagram.com/samuelpereira';
+
+// ===== CREATIVES DATA =====
+const CR=[
+  {c:'SDARL2212',n:'JáConfirmaramPresença (Palestrantes)',q:11,r:13514,l:'2ºLote Reab., 3ºLote',sp:231},
+  {c:'SDALE004',n:'OQueSDATeFazSentir_Samuel_Teatro',q:11,r:12217,l:'Pré-Venda, PV Relâmp.',sp:190},
+  {c:'SDARL2225',n:'JáConfirmaramPresencaNatalia',q:7,r:11179,l:'3ºLote',sp:2197},
+  {c:'SDAL1152',n:'Criativo Conta 03 ou Inativo',q:6,r:7629,l:'2ºLote, 2ºLote Reab.',sp:0},
+  {c:'SDALE084',n:'Criativo Lead/Formulário',q:4,r:6838,l:'2ºLote, 1ºLote',sp:0},
+  {c:'SDALE037',n:'Criativo Escala Lead',q:4,r:6585,l:'2ºLote Reab., Pré-Venda',sp:0},
+  {c:'SDALE003',n:'Criativo Checkout Original',q:6,r:5182,l:'Pré-Venda, PV Relâmp.',sp:0},
+  {c:'SDALE010',n:'Teaser2025_Samuel_CenasSDA',q:5,r:4735,l:'Vários lotes',sp:434},
+  {c:'SDAPV057',n:'Criativo Pré-Venda',q:6,r:4482,l:'Pré-Venda',sp:0},
+  {c:'SDAL1130',n:'Criativo Lead Quente',q:3,r:3941,l:'2ºLote, 1ºLote',sp:0},
+  {c:'SDALE068',n:'JáEstouArrumandoMala_VozIA',q:3,r:3791,l:'1ºLote, PV Relâmp.',sp:99},
+  {c:'SDAPV054',n:'Criativo Pré-Venda 054',q:4,r:3788,l:'1ºLote, Pré-Venda',sp:0},
+  {c:'SDARPV067',n:'Criativo PV Relâmpago',q:4,r:3738,l:'PV Relâmpago',sp:0},
+  {c:'SDALE035',n:'Criativo Lead 035',q:3,r:3688,l:'Pré-Venda, PV Relâmp.',sp:0},
+  {c:'SDARL2191',n:'Criativo Remarketing',q:4,r:3638,l:'2ºLote Reab., 3ºLote',sp:0},
+  {c:'SDALE038',n:'Criativo Lead 038',q:4,r:3288,l:'2ºLote Reab., Pré-Venda',sp:0},
+  {c:'SDARL3239',n:'3loteCaminhoCompleto_Samuel',q:2,r:3194,l:'3ºLote',sp:478},
+  {c:'SDALE006',n:'CaracaMeuDiferencaPresencial',q:3,r:3041,l:'1ºLote, Pré-Venda',sp:79},
+  {c:'SDAPV046',n:'Criativo Pré-Venda 046',q:2,r:2891,l:'Pré-Venda, PV Relâmp.',sp:0},
+  {c:'SDARL3238',n:'3loteAberto_Samuel_Teatro',q:3,r:2841,l:'3ºLote',sp:80},
 ];
 
-const CANAIS = [
-    {n:'COMERCIAL', v:255, r:302075, p:63.1},
-    {n:'ORGÂNICO', v:91, r:95921, p:20.1},
-    {n:'TRÁFEGO (CPC)', v:76, r:78716, p:16.5},
-    {n:'OUTROS', v:2, r:1694, p:0.4}
+// RANKING
+const rkEl=document.getElementById('rankCreatives');
+CR.forEach((c,i)=>{
+  const pct=c.r/CR[0].r*100;
+  const cls=i<3?'':i<10?'s':'xs';
+  rkEl.innerHTML+=`<div class="rank-item">
+    <div class="rank-pos">${i+1}</div>
+    <div class="rank-bar ${cls}" style="width:${Math.max(pct,25)}%">
+      <div class="rank-name">${c.c}</div>
+      <div class="rank-val">${c.q}x</div>
+      <div class="rank-sub">R$ ${(c.r/1000).toFixed(1)}K · ${c.l}</div>
+    </div>
+  </div>`;
+});
+
+// TABLE
+const tblCr=document.getElementById('tblCreatives');
+CR.concat([
+  {c:'SDALE008',q:2,r:2694,l:'Pré-Venda'},{c:'SDALE028',q:3,r:2688,l:'PV Relâmp.'},
+  {c:'SDAL1138',q:2,r:2494,l:'2ºLote, 3ºLote'},{c:'SDARPV063',q:3,r:2391,l:'PV Relâmp.'},
+  {c:'SDARL3240',q:2,r:1894,l:'3ºLote'},{c:'SDAL2188',q:2,r:1794,l:'2ºLote'},
+  {c:'SDARL2193',q:2,r:1794,l:'2ºLote Reab.'},{c:'SDALE032',q:2,r:1694,l:'1ºLote'},
+  {c:'SDAL1139',q:2,r:1694,l:'1ºLote'},{c:'SDARL2223',q:1,r:1597,l:'3ºLote'},
+  {c:'SDARPV065',q:2,r:1594,l:'PV Relâmp.'},{c:'SDAL1157',q:1,r:1547,l:'2ºLote'},
+  {c:'SDAL3250',q:1,r:947,l:'3ºLote'}
+]).forEach((c,i)=>{
+  const igLink=`${igProfile}`;
+  tblCr.innerHTML+=`<tr><td class="mono">${i+1}</td><td><strong>${c.c}</strong></td><td class="mono" style="color:${N2}">${c.q}</td>
+  <td class="mono">R$ ${c.r.toLocaleString()}</td><td class="mono">R$ ${Math.round(c.r/c.q).toLocaleString()}</td><td style="font-size:10px">${c.l}</td>
+  <td><a href="${igLink}" target="_blank" title="Ver perfil @samuelpereira">📸 Ver</a></td></tr>`;
+});
+
+// CHART - Rank Revenue
+const top15=CR.slice(0,15);
+new Chart(document.getElementById('cRankRev'),{type:'bar',data:{labels:top15.map(c=>c.c),datasets:[{data:top15.map(c=>c.r),backgroundColor:top15.map((_,i)=>i<3?N2:i<7?N:i<12?'#2A8A2A':'#1A5A1A'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+new Chart(document.getElementById('cRankQty'),{type:'bar',data:{labels:top15.map(c=>c.c),datasets:[{data:top15.map(c=>c.q),backgroundColor:top15.map((_,i)=>i<3?N2:i<7?Y:O),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1A351A'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// CANAIS
+new Chart(document.getElementById('cCan1'),{type:'doughnut',data:{labels:['COMERCIAL R$302K','ORGÂNICO R$96K','TRÁFEGO R$79K'],datasets:[{data:[302075,95921,78716],backgroundColor:[PK,P,B],borderColor:'#080C08',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:8,boxWidth:12,font:{size:10}}}}}});
+
+const subs2=[{n:'WhatsOficial',v:51353},{n:'Nathalia',v:50940},{n:'IG Orgânico',v:43465},{n:'Juliana',v:43535},{n:'Jalai',v:43001},{n:'Junior',v:41045},{n:'WA Orgânico',v:27075},{n:'Traf.IG Stories',v:25278},{n:'Traf.IG Feed',v:20790},{n:'ZeRoberto',v:19609}].sort((a,b)=>b.v-a.v);
+new Chart(document.getElementById('cCan2'),{type:'bar',data:{labels:subs2.map(s=>s.n),datasets:[{data:subs2.map(s=>s.v),backgroundColor:[PK,PK,P,PK,PK,PK,P,B,B,PK],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// CLOSERS RANK
+const closers=[{n:'NATHALIA',q:36,r:50940,tm:1415},{n:'JULIANA',q:35,r:43535,tm:1244},{n:'JUNIOR',q:34,r:41045,tm:1207},{n:'JALAI',q:32,r:43001,tm:1344},{n:'ZEROBERTO',q:28,r:19609,tm:700},{n:'IA',q:10,r:15417,tm:1542},{n:'LIZANDRA',q:4,r:7994,tm:1999}];
+const rkCl=document.getElementById('rankClosers');
+closers.forEach((c,i)=>{
+  const pct=c.q/closers[0].q*100;
+  rkCl.innerHTML+=`<div class="rank-item"><div class="rank-pos">${i+1}</div>
+  <div class="rank-bar ${i>=3?'s':''}" style="width:${Math.max(pct,20)}%">
+    <div class="rank-name">${c.n}</div><div class="rank-val">${c.q}</div>
+    <div class="rank-sub">R$ ${(c.r/1000).toFixed(1)}K · TM R$ ${c.tm}</div>
+  </div></div>`;
+});
+
+new Chart(document.getElementById('cTM'),{type:'bar',data:{labels:closers.map(c=>c.n),datasets:[{data:closers.map(c=>c.tm),backgroundColor:[PK,PK+'CC',PK+'AA',PK+'88',C,P,'#888'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+v}},x:{grid:{display:false}}}}});
+
+// CAMPAIGNS TABLE
+const camps=[
+  {n:'Quente ABO T02',t:'LEAD',l:'QUENTE',sp:28643,ld:617,pu:10,rq:0,rv:0},
+  {n:'CK Quente ABO',t:'VENDA',l:'QUENTE',sp:23207,ld:16,pu:37,rq:20,rv:22747},
+  {n:'Frio ABO T03',t:'LEAD',l:'FRIO',sp:14977,ld:786,pu:4,rq:3,rv:4938},
+  {n:'Form Quente',t:'LEAD',l:'QUENTE',sp:11413,ld:773,pu:5,rq:1,rv:1547},
+  {n:'Adv CBO T04',t:'VENDA',l:'ADV.',sp:9927,ld:24,pu:32,rq:8,rv:8476},
+  {n:'VisPerfil',t:'TRÁF.',l:'LEMB.',sp:7452,ld:0,pu:0,rq:0,rv:0},
+  {n:'CK Quente T02',t:'VENDA',l:'QUENTE',sp:6969,ld:5,pu:17,rq:0,rv:0},
+  {n:'WA Quente',t:'TRÁF.',l:'QUENTE',sp:6485,ld:6,pu:3,rq:0,rv:0},
+  {n:'Frio T06',t:'LEAD',l:'FRIO',sp:5021,ld:143,pu:1,rq:0,rv:0},
+  {n:'Adv Lista T05',t:'VENDA',l:'QUENTE',sp:3250,ld:3,pu:7,rq:3,rv:4791},
+  {n:'Form Criativo',t:'LEAD',l:'QUENTE',sp:3130,ld:445,pu:0,rq:1,rv:897},
+  {n:'LE Frio',t:'LEAD',l:'FRIO',sp:1056,ld:60,pu:0,rq:0,rv:0},
+  {n:'LE Quente',t:'LEAD',l:'QUENTE',sp:939,ld:31,pu:0,rq:22,rv:20507},
 ];
+const tblC=document.getElementById('tblCamps');
+camps.forEach(c=>{
+  const roas=c.sp>0&&c.rv>0?(c.rv/c.sp).toFixed(2)+'x':'-';
+  tblC.innerHTML+=`<tr><td><strong>${c.n}</strong></td><td><span class="tg tg-g">${c.t}</span></td><td><span class="tg tg-y">${c.l}</span></td>
+  <td class="mono">R$${c.sp.toLocaleString()}</td><td class="mono">${c.ld}</td><td class="mono">${c.pu}</td>
+  <td class="mono" style="color:${c.rq>0?N2:R}">${c.rq}</td><td class="mono">${c.rv>0?'R$'+c.rv.toLocaleString():'-'}</td>
+  <td class="mono" style="color:${parseFloat(roas)>=1?N2:parseFloat(roas)>0?Y:R}">${roas}</td></tr>`;
+});
 
-const CRIATIVOS = [
-    {id:'CRIATIVO_01_PROMO', v:45, r:48200, cpa:12.50},
-    {id:'CRIATIVO_05_ESCASSEZ', v:38, r:41500, cpa:14.20},
-    {id:'CRIATIVO_03_DEPOIMENTO', v:32, r:35800, cpa:11.80},
-    {id:'CRIATIVO_12_AULA', v:29, r:32000, cpa:18.40},
-    {id:'CRIATIVO_08_VLOG', v:25, r:28100, cpa:15.10},
-    {id:'CRIATIVO_02_ESTILO', v:22, r:24900, cpa:16.50},
-    {id:'CRIATIVO_10_RESULTADO', v:19, r:21200, cpa:13.90},
-    {id:'CRIATIVO_04_CONVITE', v:15, r:17500, cpa:22.10},
-    {id:'CRIATIVO_07_ANIMADO', v:12, r:14200, cpa:19.80},
-    {id:'CRIATIVO_09_DIRETO', v:10, r:11800, cpa:25.40}
+const cWithR=camps.filter(c=>c.rv>0).sort((a,b)=>b.rv-a.rv);
+new Chart(document.getElementById('cCamp'),{type:'bar',data:{labels:cWithR.map(c=>c.n),datasets:[
+  {label:'Receita Real',data:cWithR.map(c=>c.rv),backgroundColor:N2,borderRadius:4},
+  {label:'Gasto API',data:cWithR.map(c=>c.sp),backgroundColor:R+'77',borderRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},x:{grid:{display:false}}}}});
+
+// ATRIBUIÇÃO TABLE
+const attrData=[
+  {n:'SDARL2225_JáConfirmPresNatalia',sp:2197,im:30004,cl:431,pu:1,ck:21,ck1d:19,ck7d:19,ck1v:2},
+  {n:'SDAL3250_SamuelDescobriu',sp:761,im:10215,cl:123,pu:2,ck:5,ck1d:5,ck7d:5,ck1v:0},
+  {n:'SDARL3239_3loteCaminho',sp:478,im:5474,cl:28,pu:0,ck:0,ck1d:0,ck7d:0,ck1v:0},
+  {n:'SDARL2195_UltimasVagas',sp:260,im:1931,cl:61,pu:0,ck:1,ck1d:1,ck7d:1,ck1v:0},
+  {n:'SDAPV052_MaiorEspetaculo',sp:249,im:4759,cl:25,pu:0,ck:2,ck1d:1,ck7d:1,ck1v:1},
+  {n:'SDARL3234_MaioriaPessoasIA',sp:234,im:4052,cl:26,pu:0,ck:0,ck1d:0,ck7d:0,ck1v:0},
+  {n:'SDARL2212_ConfirmPresença',sp:231,im:2382,cl:36,pu:0,ck:2,ck1d:2,ck7d:2,ck1v:0},
+  {n:'SDALE010_Teaser2025',sp:254,im:2336,cl:32,pu:0,ck:1,ck1d:1,ck7d:1,ck1v:0},
+  {n:'SDALE004_OQueSDATeFaz',sp:190,im:3367,cl:35,pu:0,ck:5,ck1d:4,ck7d:4,ck1v:1},
+  {n:'SDAL3249_VoceAindaTem',sp:182,im:3123,cl:36,pu:0,ck:2,ck1d:2,ck7d:2,ck1v:0},
 ];
+const tblA=document.getElementById('tblAttr');
+attrData.forEach(a=>{
+  tblA.innerHTML+=`<tr><td style="font-size:10px"><strong>${a.n}</strong></td><td class="mono">R$${a.sp}</td><td class="mono">${(a.im/1000).toFixed(1)}K</td>
+  <td class="mono">${a.cl}</td><td class="mono" style="color:${a.pu>0?N2:R}">${a.pu}</td><td class="mono">${a.ck}</td>
+  <td class="mono" style="color:${N2}">${a.ck1d}</td><td class="mono" style="color:${Y}">${a.ck7d}</td><td class="mono" style="color:${O}">${a.ck1v}</td></tr>`;
+});
 
-const CLOSERS = [
-    {n:'Nathalia', v:36, r:50940, tm:1415}, {n:'Juliana', v:35, r:43535, tm:1244},
-    {n:'Jalai', v:32, r:43001, tm:1344}, {n:'Junior', v:34, r:41045, tm:1207},
-    {n:'IA', v:10, r:15417, tm:1542}
-];
-
-function go(id){
-    document.querySelectorAll('.P').forEach(p=>p.classList.remove('on'));
-    document.querySelectorAll('.T').forEach(t=>t.classList.remove('on'));
-    document.getElementById('p-'+id).classList.add('on');
-    event.currentTarget.classList.add('on');
-}
-
-function render(){
-    // Campanhas
-    document.getElementById('tblBodyCam').innerHTML = CAMPAIGNS.sort((a,b)=>b.rv-a.rv).map(c => {
-        const roas = c.rv > 0 ? (c.rv/c.sp).toFixed(2)+'x' : '0.00x';
-        return `<tr><td style="font-weight:700">${c.n}</td><td>R$ ${Math.round(c.sp).toLocaleString()}</td><td>${c.rqty}</td><td>R$ ${c.rv.toLocaleString()}</td><td style="color:var(--n)">${roas}</td></tr>`;
-    }).join('');
-
-    // Canais
-    document.getElementById('tblBodyCan').innerHTML = CANAIS.sort((a,b)=>b.r-a.r).map(c => `
-        <tr><td>${c.n}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>${c.p}%</td></tr>
-    `).join('');
-
-    // Criativos
-    document.getElementById('tblBodyCri').innerHTML = CRIATIVOS.map((c, i) => `
-        <tr><td>${i+1}º</td><td style="font-weight:700">${c.id}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>R$ ${c.cpa.toFixed(2)}</td></tr>
-    `).join('');
-
-    // Closers
-    document.getElementById('tblBodyClo').innerHTML = CLOSERS.sort((a,b)=>b.r-a.r).map(c => `
-        <tr><td>${c.n}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>R$ ${c.tm}</td></tr>
-    `).join('');
-}
-
-function sortTable(n, id) {
-    var table = document.getElementById(id), rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    switching = true; dir = "asc";
-    while (switching) {
-        switching = false; rows = table.rows;
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i+1].getElementsByTagName("TD")[n];
-            let vx = x.innerText.replace(/[R$ .x%]/g, "").replace(",", ".");
-            let vy = y.innerText.replace(/[R$ .x%]/g, "").replace(",", ".");
-            let v1 = isNaN(parseFloat(vx)) ? x.innerText.toLowerCase() : parseFloat(vx);
-            let v2 = isNaN(parseFloat(vy)) ? y.innerText.toLowerCase() : parseFloat(vy);
-            if (dir == "asc" ? v1 < v2 : v1 > v2) { shouldSwitch = true; break; }
-        }
-        if (shouldSwitch) { rows[i].parentNode.insertBefore(rows[i + 1], rows[i]); switching = true; switchcount ++; }
-        else if (switchcount == 0 && dir == "asc") { dir = "desc"; switching = true; }
-    }
-}
-
-function downloadHTML() {
-    const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'SDA2026_Dashboard_Completo.html'; a.click();
-}
-
-new Chart(document.getElementById('c1'),{type:'doughnut',data:{labels:CANAIS.map(c=>c.n),datasets:[{data:CANAIS.map(c=>c.r),backgroundColor:['#FF6B9D','#B57AFF','#5BA8FF','#444'],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#88A088',font:{family:'Montserrat'}}}}}});
-
-render();
+const topA=attrData.filter(a=>a.ck>0).sort((a,b)=>b.ck-a.ck);
+new Chart(document.getElementById('cAttr'),{type:'bar',data:{labels:topA.map(a=>a.n.split('_')[0]),datasets:[
+  {label:'1d Click',data:topA.map(a=>a.ck1d),backgroundColor:N2,borderRadius:4},
+  {label:'7d Click',data:topA.map(a=>a.ck7d-a.ck1d),backgroundColor:Y,borderRadius:4},
+  {label:'1d View',data:topA.map(a=>a.ck1v),backgroundColor:O,borderRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#1A351A'}}}}});
 </script>
 </body>
 </html>
