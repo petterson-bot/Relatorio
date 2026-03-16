@@ -56,7 +56,7 @@ tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.05)}
 <body>
 <header class="hero">
   <button class="btn-dl" onclick="downloadHTML()">Baixar Relatório</button>
-  <h1>📊 SDA AO VIVO 2026 — RELATÓRIO COMPLETO</h1>
+  <h1>📊 SDA AO VIVO 2026</h1>
   <div class="s">Segredos da Audiência · SDA 2026 · Dados API + Planilha de Vendas</div>
   <div class="p">📅 424 vendas reais · R$ 478.406 faturamento</div>
 </header>
