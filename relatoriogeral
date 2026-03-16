@@ -82,7 +82,7 @@ tr:hover { background:rgba(255,255,255,0.02); }
         <div class="T" onclick="go('wa')">💬 <span>WhatsApp</span></div>
         <div class="T" onclick="go('clo')">👥 <span>Closers</span></div>
     </div>
-    <div style="padding:20px; font-size:9px; color:var(--t3); text-align:center">Perry Marketing Integrado</div>
+    <div style="padding:20px; font-size:9px; color:var(--t3); text-align:center">Segredos da Audiência</div>
 </nav>
 
 <main>
