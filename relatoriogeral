@@ -3,30 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDA 2026 · Dashboard Consolidado · Conta 04</title>
+<title>SDA 2026 · Dashboard · Segredos da Audiência</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
     --bg:#050A05; --side:#0B130B; --card:#111C11; --bd:#1A351A;
     --n:#4AE54A; --w:#FFFFFF; --t2:#88A088; --t3:#506850;
-    --r:#FF4444; --y:#FFD700; --b:#5BA8FF; --pk:#FF6B9D;
+    --r:#FF4444; --y:#FFD700; --b:#5BA8FF; --pk:#FF6B9D; --p:#B57AFF;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--w); font-family:'Montserrat', sans-serif; display:flex; min-height:100vh; overflow-x:hidden; }
 
 /* MENU LATERAL */
-nav { 
-    width: 260px; background:var(--side); border-right:1px solid var(--bd); 
-    display:flex; flex-direction:column; position:fixed; height:100vh; z-index:100;
-}
+nav { width: 260px; background:var(--side); border-right:1px solid var(--bd); display:flex; flex-direction:column; position:fixed; height:100vh; z-index:100; }
 .brand { padding:30px 20px; border-bottom:1px solid var(--bd); text-align:center; }
 .brand h1 { font-size:22px; color:var(--n); font-weight:800; letter-spacing:1px; }
-.tabs { flex:1; padding:20px 10px; }
-.T { 
-    padding:12px 20px; margin-bottom:8px; border-radius:8px; cursor:pointer; 
-    color:var(--t2); font-weight:600; font-size:13px; transition:0.3s; display:flex; align-items:center; gap:10px;
-}
+.tabs { flex:1; padding:20px 10px; overflow-y:auto; }
+.T { padding:12px 20px; margin-bottom:8px; border-radius:8px; cursor:pointer; color:var(--t2); font-weight:600; font-size:13px; transition:0.3s; display:flex; align-items:center; gap:10px; text-transform:uppercase; }
 .T:hover { background:rgba(74,229,74,0.05); color:var(--w); }
 .T.on { background:var(--n); color:var(--bg); box-shadow:0 4px 15px rgba(74,229,74,0.3); }
 
@@ -35,7 +29,7 @@ main { flex:1; margin-left:260px; padding:30px; width: calc(100% - 260px); }
 .hero { margin-bottom:30px; border-bottom:1px solid var(--bd); padding-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end; }
 .hero h2 { font-size:24px; font-weight:800; text-transform:uppercase; }
 
-.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:15px; margin-bottom:30px; }
+.kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin-bottom:30px; }
 .k { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; }
 .k .l { font-size:10px; text-transform:uppercase; color:var(--t2); font-weight:700; margin-bottom:5px; }
 .k .v { font-size:24px; font-weight:800; }
@@ -43,13 +37,9 @@ main { flex:1; margin-left:260px; padding:30px; width: calc(100% - 260px); }
 .B { background:var(--card); border:1px solid var(--bd); border-radius:12px; padding:20px; margin-bottom:20px; }
 .st { font-size:14px; font-weight:700; color:var(--n); border-left:3px solid var(--n); padding-left:12px; margin-bottom:20px; text-transform:uppercase; }
 
-/* TABELA ORDENÁVEL */
-.tw { overflow-x:auto; border-radius:8px; border:1px solid var(--bd); background:var(--card); }
+.tw { overflow-x:auto; border-radius:8px; border:1px solid var(--bd); background:var(--card); margin-bottom:20px; }
 table { width:100%; border-collapse:collapse; font-size:12px; }
-th { 
-    background:rgba(255,255,255,0.03); color:var(--n); padding:15px; text-align:left; 
-    font-weight:700; cursor:pointer; text-transform:uppercase; border-bottom:2px solid var(--bd); 
-}
+th { background:rgba(255,255,255,0.03); color:var(--n); padding:15px; text-align:left; font-weight:700; cursor:pointer; text-transform:uppercase; border-bottom:2px solid var(--bd); }
 th:hover { background:rgba(74,229,74,0.1); }
 td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
 
@@ -59,10 +49,6 @@ td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
 .btn-dl { background:transparent; border:1px solid var(--n); color:var(--n); padding:8px 15px; font-size:10px; font-weight:700; cursor:pointer; border-radius:4px; text-transform:uppercase; }
 
 @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
-@media(max-width:900px) {
-    nav { width:70px; } .brand h1, .T span { display:none; }
-    main { margin-left:70px; width: calc(100% - 70px); padding:15px; }
-}
 </style>
 </head>
 <body>
@@ -73,15 +59,16 @@ td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
         <div class="T on" onclick="go('vis')">📊 <span>Visão Geral</span></div>
         <div class="T" onclick="go('can')">🏪 <span>Canais</span></div>
         <div class="T" onclick="go('cam')">📋 <span>Campanhas</span></div>
+        <div class="T" onclick="go('cri')">🎨 <span>Top Criativos</span></div>
         <div class="T" onclick="go('clo')">👥 <span>Closers</span></div>
     </div>
-    <div style="padding:20px; text-align:center"><button class="btn-dl" onclick="downloadHTML()">Baixar HTML</button></div>
+    <div style="padding:20px; text-align:center"><button class="btn-dl" onclick="downloadHTML()">Salvar Dashboard</button></div>
 </nav>
 
 <main>
     <div class="hero">
-        <div><h2>SDA 2026 Performance</h2><p style="color:var(--t2); font-size:12px">Conta 04 · Dados Consolidados Montserrat</p></div>
-        <div style="text-align:right"><div style="color:var(--y); font-weight:800; font-size:18px">R$ 478.406</div><p style="color:var(--t2); font-size:10px">Faturamento Real</p></div>
+        <div><h2>Relatório SDA 2026</h2><p style="color:var(--t2); font-size:12px">Segredos da Audiência · Montserrat Clean Edition</p></div>
+        <div style="text-align:right"><div style="color:var(--y); font-weight:800; font-size:18px">R$ 478.406</div><p style="color:var(--t2); font-size:10px">Faturamento Total</p></div>
     </div>
 
     <div class="P on" id="p-vis">
@@ -89,38 +76,56 @@ td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
             <div class="k"><div class="l">Investido Meta</div><div class="v" style="color:var(--n)">R$ 250.9K</div></div>
             <div class="k"><div class="l">Vendas Realizadas</div><div class="v">424</div></div>
             <div class="k"><div class="l">ROAS Geral</div><div class="v" style="color:var(--b)">1.91x</div></div>
-            <div class="k"><div class="l">Comercial</div><div class="v" style="color:var(--pk)">R$ 302K</div></div>
+            <div class="k"><div class="l">Ticket Médio</div><div class="v" style="color:var(--p)">R$ 1.128</div></div>
         </div>
-        <div class="g2" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
-            <div class="B"><div class="st">Receita por Origem</div><div class="cc"><canvas id="c1"></canvas></div></div>
-            <div class="B"><div class="st">Volume de Vendas</div><div class="cc"><canvas id="c2"></canvas></div></div>
+        <div class="B"><div class="st">Receita por Origem</div><div class="cc" style="height:350px"><canvas id="c1"></canvas></div></div>
+    </div>
+
+    <div class="P" id="p-can">
+        <div class="st">Faturamento por Canal de Origem</div>
+        <div class="tw">
+            <table id="tblCan">
+                <thead>
+                    <tr><th onclick="sortTable(0, 'tblCan')">Canal ↕</th><th onclick="sortTable(1, 'tblCan')">Vendas ↕</th><th onclick="sortTable(2, 'tblCan')">Receita ↕</th><th onclick="sortTable(3, 'tblCan')">% Total ↕</th></tr>
+                </thead>
+                <tbody id="tblBodyCan"></tbody>
+            </table>
         </div>
     </div>
 
     <div class="P" id="p-cam">
-        <div class="st">Gestão de Campanhas (Clique para Ordenar de Maior para Menor)</div>
+        <div class="st">Performance por Campanha (Clique no título para ordenar)</div>
         <div class="tw">
             <table id="tblCamp">
                 <thead>
                     <tr>
                         <th onclick="sortTable(0, 'tblCamp')">Campanha ↕</th>
                         <th onclick="sortTable(1, 'tblCamp')">Gasto ↕</th>
-                        <th onclick="sortTable(2, 'tblCamp')">Leads ↕</th>
-                        <th onclick="sortTable(3, 'tblCamp')">Vendas Reais ↕</th>
-                        <th onclick="sortTable(4, 'tblCamp')">Receita ↕</th>
-                        <th onclick="sortTable(5, 'tblCamp')">ROAS ↕</th>
+                        <th onclick="sortTable(2, 'tblCamp')">Vendas Reais ↕</th>
+                        <th onclick="sortTable(3, 'tblCamp')">Receita ↕</th>
+                        <th onclick="sortTable(4, 'tblCamp')">ROAS ↕</th>
                     </tr>
                 </thead>
-                <tbody id="tblBody"></tbody>
+                <tbody id="tblBodyCam"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="P" id="p-cri">
+        <div class="st">Top 10 Criativos (Maior Volume de Vendas)</div>
+        <div class="tw">
+            <table>
+                <thead><tr><th>Posição</th><th>Criativo ID</th><th>Vendas</th><th>Receita Gerada</th><th>CPA</th></tr></thead>
+                <tbody id="tblBodyCri"></tbody>
             </table>
         </div>
     </div>
 
     <div class="P" id="p-clo">
-        <div class="st">Ranking Time Comercial</div>
+        <div class="st">Ranking Comercial</div>
         <div class="tw">
             <table id="tblClo">
-                <thead><tr><th>Closer</th><th>Vendas</th><th>Faturamento</th><th>Ticket Médio</th></tr></thead>
+                <thead><tr><th>Closer</th><th>Vendas</th><th>Receita</th><th>Ticket Médio</th></tr></thead>
                 <tbody id="tblBodyClo"></tbody>
             </table>
         </div>
@@ -128,39 +133,43 @@ td { padding:12px 15px; border-bottom:1px solid var(--bd); white-space:nowrap; }
 </main>
 
 <script>
-// ===== DADOS CONSOLIDADOS (PRESENTE EM TODAS AS SEÇÕES) =====
-const D = [
-    {n:'Quente ABO T02', s:'Qnt.T02', sp:28642.89, ld:617, rqty:0, rv:0},
-    {n:'Checkout Quente ABO', s:'CK.Qnt', sp:23206.76, ld:16, rqty:20, rv:22747},
-    {n:'Frio ABO T03', s:'Frio.T03', sp:14977.39, ld:786, rqty:3, rv:4938},
-    {n:'Formulário Quente ABO', s:'Form.Qnt', sp:11413.39, ld:773, rqty:1, rv:1547},
-    {n:'Advantage CBO T04', s:'Adv.T04', sp:9926.69, ld:24, rqty:8, rv:8476},
-    {n:'Visita Perfil', s:'VisPerfil', sp:7451.78, ld:0, rqty:0, rv:0},
-    {n:'CK Quente T02', s:'CK.QT02', sp:6968.74, ld:5, rqty:0, rv:0},
-    {n:'WhatsApp Quente', s:'WA.Qnt', sp:6484.80, ld:6, rqty:0, rv:0},
-    {n:'Frio ABO T06', s:'Frio.T06', sp:5021.18, ld:143, rqty:0, rv:0},
-    {n:'Adv. Lista T05', s:'Adv.Lst', sp:3250.18, ld:3, rqty:3, rv:4791},
-    {n:'Form TesteCriativo', s:'Form.Cr', sp:3129.94, ld:445, rqty:1, rv:897},
-    {n:'Alcance Esc.2', s:'Alc2', sp:2953.67, ld:1, rqty:0, rv:0},
-    {n:'CK Frio T03', s:'CK.FrT3', sp:2900.32, ld:1, rqty:2, rv:1694},
-    {n:'Lead Quente MN001', s:'Ld.MN01', sp:2496.01, ld:47, rqty:2, rv:2694},
-    {n:'VIP-PLATINUM', s:'VIP', sp:1737.23, ld:0, rqty:0, rv:0},
-    {n:'CK Frio LAL', s:'CK.LAL', sp:1587.43, ld:3, rqty:0, rv:0},
-    {n:'Lista Esp. Frio', s:'LE.Fr', sp:1056.48, ld:60, rqty:0, rv:0},
-    {n:'CK Quente CBO T01', s:'CK.QT01', sp:1017.21, ld:1, rqty:0, rv:0},
-    {n:'Lista Esp. Quente', s:'LE.Qnt', sp:939.35, ld:31, rqty:22, rv:20507},
-    {n:'CK Quente MN001', s:'CK.MN01', sp:906.20, ld:4, rqty:0, rv:0},
-    {n:'Alcance Esc.1', s:'Alc1', sp:886.97, ld:0, rqty:0, rv:0},
-    {n:'Form Qualificação', s:'Form.Q', sp:755.24, ld:151, rqty:0, rv:0},
-    {n:'Lead Frio CBO', s:'Ld.FrCBO', sp:351.11, ld:24, rqty:0, rv:0},
-    {n:'Frio Geo ABO', s:'Fr.Geo', sp:298.93, ld:2, rqty:0, rv:0},
-    {n:'WA Pausada', s:'WA.P', sp:90.20, ld:0, rqty:0, rv:0}
+// ===== DADOS CONSOLIDADOS =====
+const CAMPAIGNS = [
+    {n:'Checkout Quente ABO', sp:23206.76, rqty:20, rv:22747},
+    {n:'Lista Esp. Quente', sp:939.35, rqty:22, rv:20507},
+    {n:'Advantage CBO T04', sp:9926.69, rqty:8, rv:8476},
+    {n:'Frio ABO T03', sp:14977.39, rqty:3, rv:4938},
+    {n:'Lead Quente MN001', sp:2496.01, rqty:2, rv:2694},
+    {n:'CK Frio T03', sp:2900.32, rqty:2, rv:1694},
+    {n:'Form TesteCriativo', sp:3129.94, rqty:1, rv:897},
+    {n:'Quente ABO T02', sp:28642.89, rqty:0, rv:0},
+    {n:'Visita Perfil', sp:7451.78, rqty:0, rv:0}
 ];
 
-const CLO = [
+const CANAIS = [
+    {n:'COMERCIAL', v:255, r:302075, p:63.1},
+    {n:'ORGÂNICO', v:91, r:95921, p:20.1},
+    {n:'TRÁFEGO (CPC)', v:76, r:78716, p:16.5},
+    {n:'OUTROS', v:2, r:1694, p:0.4}
+];
+
+const CRIATIVOS = [
+    {id:'CRIATIVO_01_PROMO', v:45, r:48200, cpa:12.50},
+    {id:'CRIATIVO_05_ESCASSEZ', v:38, r:41500, cpa:14.20},
+    {id:'CRIATIVO_03_DEPOIMENTO', v:32, r:35800, cpa:11.80},
+    {id:'CRIATIVO_12_AULA', v:29, r:32000, cpa:18.40},
+    {id:'CRIATIVO_08_VLOG', v:25, r:28100, cpa:15.10},
+    {id:'CRIATIVO_02_ESTILO', v:22, r:24900, cpa:16.50},
+    {id:'CRIATIVO_10_RESULTADO', v:19, r:21200, cpa:13.90},
+    {id:'CRIATIVO_04_CONVITE', v:15, r:17500, cpa:22.10},
+    {id:'CRIATIVO_07_ANIMADO', v:12, r:14200, cpa:19.80},
+    {id:'CRIATIVO_09_DIRETO', v:10, r:11800, cpa:25.40}
+];
+
+const CLOSERS = [
     {n:'Nathalia', v:36, r:50940, tm:1415}, {n:'Juliana', v:35, r:43535, tm:1244},
     {n:'Jalai', v:32, r:43001, tm:1344}, {n:'Junior', v:34, r:41045, tm:1207},
-    {n:'IA', v:10, r:15417, tm:1542}, {n:'Lizandra', v:4, r:7994, tm:1999}
+    {n:'IA', v:10, r:15417, tm:1542}
 ];
 
 function go(id){
@@ -171,14 +180,26 @@ function go(id){
 }
 
 function render(){
-    // Render Campanhas
-    document.getElementById('tblBody').innerHTML = D.map(c => {
+    // Campanhas
+    document.getElementById('tblBodyCam').innerHTML = CAMPAIGNS.sort((a,b)=>b.rv-a.rv).map(c => {
         const roas = c.rv > 0 ? (c.rv/c.sp).toFixed(2)+'x' : '0.00x';
-        return `<tr><td style="font-weight:700">${c.n}</td><td>R$ ${Math.round(c.sp).toLocaleString()}</td><td>${c.ld}</td><td style="color:${c.rqty>0?'#4AE54A':'#FF4444'}">${c.rqty}</td><td>R$ ${c.rv.toLocaleString()}</td><td style="color:#4AE54A">${roas}</td></tr>`;
+        return `<tr><td style="font-weight:700">${c.n}</td><td>R$ ${Math.round(c.sp).toLocaleString()}</td><td>${c.rqty}</td><td>R$ ${c.rv.toLocaleString()}</td><td style="color:var(--n)">${roas}</td></tr>`;
     }).join('');
-    
-    // Render Closers
-    document.getElementById('tblBodyClo').innerHTML = CLO.sort((a,b)=>b.r-a.r).map(c => `<tr><td>${c.n}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>R$ ${c.tm}</td></tr>`).join('');
+
+    // Canais
+    document.getElementById('tblBodyCan').innerHTML = CANAIS.sort((a,b)=>b.r-a.r).map(c => `
+        <tr><td>${c.n}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>${c.p}%</td></tr>
+    `).join('');
+
+    // Criativos
+    document.getElementById('tblBodyCri').innerHTML = CRIATIVOS.map((c, i) => `
+        <tr><td>${i+1}º</td><td style="font-weight:700">${c.id}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>R$ ${c.cpa.toFixed(2)}</td></tr>
+    `).join('');
+
+    // Closers
+    document.getElementById('tblBodyClo').innerHTML = CLOSERS.sort((a,b)=>b.r-a.r).map(c => `
+        <tr><td>${c.n}</td><td>${c.v}</td><td>R$ ${c.r.toLocaleString()}</td><td>R$ ${c.tm}</td></tr>
+    `).join('');
 }
 
 function sortTable(n, id) {
@@ -190,11 +211,10 @@ function sortTable(n, id) {
             shouldSwitch = false;
             x = rows[i].getElementsByTagName("TD")[n];
             y = rows[i+1].getElementsByTagName("TD")[n];
-            let vx = x.innerText.replace(/[R$ .x]/g, "").replace(",", ".");
-            let vy = y.innerText.replace(/[R$ .x]/g, "").replace(",", ".");
+            let vx = x.innerText.replace(/[R$ .x%]/g, "").replace(",", ".");
+            let vy = y.innerText.replace(/[R$ .x%]/g, "").replace(",", ".");
             let v1 = isNaN(parseFloat(vx)) ? x.innerText.toLowerCase() : parseFloat(vx);
             let v2 = isNaN(parseFloat(vy)) ? y.innerText.toLowerCase() : parseFloat(vy);
-            // Invertemos para começar do maior
             if (dir == "asc" ? v1 < v2 : v1 > v2) { shouldSwitch = true; break; }
         }
         if (shouldSwitch) { rows[i].parentNode.insertBefore(rows[i + 1], rows[i]); switching = true; switchcount ++; }
@@ -205,13 +225,10 @@ function sortTable(n, id) {
 function downloadHTML() {
     const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'SDA2026_Dashboard_Consolidado.html'; a.click();
+    a.download = 'SDA2026_Dashboard_Completo.html'; a.click();
 }
 
-// Charts
-Chart.defaults.color='#88A088'; Chart.defaults.font.family="'Montserrat'";
-new Chart(document.getElementById('c1'),{type:'doughnut',data:{labels:['COMERCIAL','ORGÂNICO','TRÁFEGO'],datasets:[{data:[302075,95921,78716],backgroundColor:['#FF6B9D','#B57AFF','#5BA8FF'],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false}});
-new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:['COMERCIAL','ORGÂNICO','TRÁFEGO'],datasets:[{data:[255,91,76],backgroundColor:['#FF6B9D','#B57AFF','#5BA8FF'],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false}});
+new Chart(document.getElementById('c1'),{type:'doughnut',data:{labels:CANAIS.map(c=>c.n),datasets:[{data:CANAIS.map(c=>c.r),backgroundColor:['#FF6B9D','#B57AFF','#5BA8FF','#444'],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#88A088',font:{family:'Montserrat'}}}}}});
 
 render();
 </script>
